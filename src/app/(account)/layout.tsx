@@ -2,21 +2,10 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "../../app/globals.css";
 import { redirect } from "next/navigation";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronDown, Heart, Settings, User } from "lucide-react";
+import { Heart } from "lucide-react";
 import Link from "next/link";
-import { ProfilLogout } from "./home/profil-logout";
 import { getSessionUser } from "@/actions/user";
 import { Toaster } from "@/components/ui/sonner";
-import { Button } from "@/components/ui/button";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -37,66 +26,12 @@ export default async function RootLayout({
   if (!session) {
     redirect("/login");
   }
-  //user information
-  const sessionUser = await getSessionUser();
+
   return (
     <html lang="fr">
       <body className={`${montserrat.variable} account antialiased`}>
         <div className="flex flex-col min-h-screen bg-gradient-to-b from-rose-50/50 to-white">
-          <header className="bg-white border-b border-rose-100 sticky top-0 z-10">
-            <div className="layout mx-auto px-4 py-3">
-              <div className="flex justify-between items-center">
-                <Link href="/" className="flex items-center gap-2">
-                  <div className="bg-gradient-to-r from-rose-500 to-rose-600 p-2 rounded-lg">
-                    <Heart className="h-5 w-5 text-white" />
-                  </div>
-                  <span className="text-xl font-bold text-rose-600">
-                    Page d&apos;Amour
-                  </span>
-                </Link>
-
-                <div className="flex items-center gap-4">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="p-0 hover:bg-transparent focus-visible:ring-0 focus-visible:outline-none"
-                      >
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-9 w-9 border-2 border-rose-100">
-                            <AvatarFallback className="bg-rose-100 text-rose-600">
-                              {sessionUser?.user?.name?.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span className="text-gray-700 font-medium">
-                            {sessionUser?.user?.name}
-                          </span>
-                          <ChevronDown className="h-4 w-4 text-gray-500" />
-                        </div>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profil</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Settings className="mr-2 h-4 w-4" />
-                        <span>Paramètres</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600">
-                        <ProfilLogout />
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            </div>
-          </header>
-          <main className="layout mx-auto w-full py-8 ">{children}</main>
+          <main className="">{children}</main>
         </div>
         <Toaster />
         <footer className="bg-white border-t border-rose-100 py-6 mt-12">
