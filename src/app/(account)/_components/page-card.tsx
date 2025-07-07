@@ -17,6 +17,8 @@ export const PageCard = ({ page }: { page: Page }) => {
       <CardContent className="p-0">
         <div className="relative h-32 bg-gradient-to-br from-stone-100 to-stone-200 overflow-hidden">
           <iframe
+            //if error
+
             src={page.url}
             className="border-0 pointer-events-none"
             style={{
