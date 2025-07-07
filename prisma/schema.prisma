@@ -39,6 +39,16 @@ model Page {
   @@map("page")
 }
 
+model Tag {
+  id String @id @default(uuid())
+  label String
+  value String
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("tag")
+  @@unique([label, value])
+}
+
 
 model User {
   id            String    @id
@@ -51,7 +61,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   stripeCustomerId String?
-  tags            Json[]
+  tags            Tag[]
   pages           Page[]
   @@unique([email])
   @@map("user")

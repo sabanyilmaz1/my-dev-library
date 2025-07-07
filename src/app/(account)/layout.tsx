@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "../../app/globals.css";
 import { redirect } from "next/navigation";
-import { Heart } from "lucide-react";
-import Link from "next/link";
 import { getSessionUser } from "@/actions/user";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -30,48 +28,10 @@ export default async function RootLayout({
   return (
     <html lang="fr">
       <body className={`${montserrat.variable} account antialiased`}>
-        <div className="flex flex-col min-h-screen bg-gradient-to-b from-rose-50/50 to-white">
+        <div className="flex flex-col min-h-screen">
           <main className="">{children}</main>
         </div>
         <Toaster />
-        <footer className="bg-white border-t border-rose-100 py-6 mt-12">
-          <div className="layout mx-auto px-4">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-rose-600" />
-                <span className="text-gray-700">
-                  Page d&apos;Amour © {new Date().getFullYear()}
-                </span>
-              </div>
-              <div className="flex gap-6 text-gray-600 text-sm">
-                <Link
-                  href="#"
-                  className="hover:text-rose-600 transition-colors"
-                >
-                  Aide
-                </Link>
-                <Link
-                  href="#"
-                  className="hover:text-rose-600 transition-colors"
-                >
-                  Confidentialité
-                </Link>
-                <Link
-                  href="#"
-                  className="hover:text-rose-600 transition-colors"
-                >
-                  Conditions d&apos;utilisation
-                </Link>
-                <Link
-                  href="#"
-                  className="hover:text-rose-600 transition-colors"
-                >
-                  Contact
-                </Link>
-              </div>
-            </div>
-          </div>
-        </footer>
       </body>
     </html>
   );
