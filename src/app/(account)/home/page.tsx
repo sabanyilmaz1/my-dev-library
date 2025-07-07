@@ -1,12 +1,8 @@
 import { FiltersSidebar } from "../_components/filters-sidebar";
 import { HeaderPage } from "../_components/header-page";
 import { PagesList } from "../_components/pages-list";
-import { getPagesByUserId } from "@/actions/db/page";
-import { Page } from "../_types/page";
 
 export default async function HomePage() {
-  const pages = (await getPagesByUserId()) as Page[];
-  console.log("pages", pages);
   return (
     <main>
       <HeaderPage />
@@ -14,7 +10,7 @@ export default async function HomePage() {
         <aside className="hidden md:block w-72 border-r border-stone-200/60 bg-white/40 backdrop-blur-sm min-h-screen">
           <FiltersSidebar />
         </aside>
-        <PagesList pages={pages} />
+        <PagesList />
       </div>
       {/* Pagination */}
     </main>
