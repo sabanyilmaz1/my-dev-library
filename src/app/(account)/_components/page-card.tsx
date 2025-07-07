@@ -1,11 +1,14 @@
+"use client";
 import { Card, CardContent } from "@/components/ui/card";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Page } from "../_types/page";
+import { getFaviconUrl } from "@/utils/get-favicon-url";
 
 export const PageCard = ({ page }: { page: Page }) => {
+  const faviconUrl = getFaviconUrl(page.url);
   return (
     <Card
       key={page.id}
@@ -56,7 +59,27 @@ export const PageCard = ({ page }: { page: Page }) => {
         <div className="p-4">
           <div className="flex items-start justify-between mb-2">
             <div className="flex items-center space-x-2 flex-1 min-w-0">
-              <span className="text-lg">🟠</span>
+              {faviconUrl ? (
+                <img
+                  src={faviconUrl}
+                  alt={`${page.title} favicon`}
+                  className="w-4 h-4 flex-shrink-0"
+                  onError={(e) => {
+                    // Fallback to emoji if favicon fails to load
+                    e.currentTarget.style.display = "none";
+                    e.currentTarget.nextElementSibling?.setAttribute(
+                      "style",
+                      "display: inline"
+                    );
+                  }}
+                />
+              ) : null}
+              <span
+                className="text-lg"
+                style={{ display: faviconUrl ? "none" : "inline" }}
+              >
+                🟠
+              </span>
               <h3 className="font-medium text-stone-800 truncate text-sm">
                 {page.title}
               </h3>
