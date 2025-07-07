@@ -10,18 +10,22 @@ export const PageCard = ({ page }: { page: Page }) => {
     <Card
       key={page.id}
       className="group relative overflow-hidden border-stone-200/60 bg-white/60 backdrop-blur-sm hover:shadow-xl hover:shadow-stone-200/40 transition-all duration-300 hover:-translate-y-1"
-      // onMouseEnter={() => setHoveredCard(page.id)}
-      // onMouseLeave={() => setHoveredCard(null)}
     >
       <CardContent className="p-0">
-        {/* Thumbnail */}
         <div className="relative h-32 bg-gradient-to-br from-stone-100 to-stone-200 overflow-hidden">
-          {/* <img
-            src={page.thumbnail || "/placeholder.svg"}
-            alt={page.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          /> */}
-
+          <iframe
+            src={page.url}
+            className="border-0 pointer-events-none"
+            style={{
+              width: "300%",
+              height: "300%",
+              transform: "scale(0.33)",
+              transformOrigin: "top left",
+              position: "absolute",
+              top: "0",
+              left: "0",
+            }}
+          />
           {/* Hover Actions */}
           <div
             className={`absolute top-2 right-2 flex space-x-1 transition-all duration-200

@@ -35,9 +35,6 @@ export const FiltersSidebar = () => (
       <div className="space-y-2">
         {allTags.map((tag) => {
           const isSelected = selectedTags.includes(tag);
-          // const count = websites.filter((site) =>
-          //   site.tags.includes(tag)
-          // ).length;
           return (
             <button
               key={tag}
@@ -49,9 +46,6 @@ export const FiltersSidebar = () => (
               }`}
             >
               <span className="text-sm font-medium">{tag}</span>
-              <span className="text-xs text-stone-400 bg-stone-200/60 px-2 py-1 rounded-full">
-                {/* {count} */}
-              </span>
             </button>
           );
         })}

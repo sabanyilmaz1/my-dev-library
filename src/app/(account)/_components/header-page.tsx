@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import React, { useState } from "react";
+import { FiltersSidebar } from "./filters-sidebar";
 
 export const HeaderPage = () => {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
@@ -36,9 +37,9 @@ export const HeaderPage = () => {
               className="w-80 bg-white/95 backdrop-blur-sm"
             >
               <SheetHeader>
-                <SheetTitle className="text-stone-800">Filters</SheetTitle>
+                <SheetTitle className="text-stone-800"></SheetTitle>
               </SheetHeader>
-              {/* <FiltersSidebar /> */}
+              <FiltersSidebar />
             </SheetContent>
           </Sheet>
 
