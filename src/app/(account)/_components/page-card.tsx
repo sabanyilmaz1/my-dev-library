@@ -4,7 +4,7 @@ import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Page } from "../_types/page";
+import { Page } from "@prisma/client";
 import { getFaviconUrl } from "@/utils/get-favicon-url";
 
 export const PageCard = ({ page }: { page: Page }) => {

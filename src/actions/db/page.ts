@@ -4,6 +4,7 @@
 import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
 import prisma from "@/lib/prisma";
+import { Page } from "@prisma/client";
 
 export const getPagesByUserId = async () => {
   const session = await auth.api.getSession({
@@ -22,5 +23,5 @@ export const getPagesByUserId = async () => {
       },
     },
   });
-  return pages;
+  return pages as Page[];
 };

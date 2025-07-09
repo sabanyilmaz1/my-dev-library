@@ -1,6 +1,5 @@
 import React, { Suspense } from "react";
 import { PageCard } from "./page-card";
-import { Page } from "../_types/page";
 import { getPagesByUserId } from "@/actions/db/page";
 
 export const PagesList = async () => {
@@ -13,7 +12,7 @@ export const PagesList = async () => {
 };
 
 const PagesListSuspense = async () => {
-  const pages = (await getPagesByUserId()) as Page[];
+  const pages = await getPagesByUserId();
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-8">
