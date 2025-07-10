@@ -9,6 +9,7 @@ import { getFaviconUrl } from "@/utils/get-favicon-url";
 
 export const PageCard = ({ page }: { page: Page }) => {
   const faviconUrl = getFaviconUrl(page.url);
+  const tags = page.tags as { id: string; label: string }[];
   return (
     <Card
       key={page.id}
@@ -92,8 +93,8 @@ export const PageCard = ({ page }: { page: Page }) => {
           </p>
 
           <div className="flex flex-wrap gap-1">
-            {page.tags &&
-              page.tags.slice(0, 3).map((tag) => (
+            {tags &&
+              tags.slice(0, 3).map((tag) => (
                 <Badge
                   key={tag.id}
                   variant="secondary"
