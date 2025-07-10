@@ -11,15 +11,14 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
 import React, { useState } from "react";
 import { FiltersSidebar } from "./filters-sidebar";
+import { AddPageModal } from "./add-page-modal";
 
 export const HeaderPage = () => {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-40 border-b border-stone-200/60 bg-white/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b bg-amber-50/30  backdrop-blur-xl">
       <div className="flex h-16 items-center justify-between px-4 md:px-8">
         <div className="flex items-center space-x-2 md:space-x-4">
           {/* Mobile Menu Button */}
@@ -62,18 +61,7 @@ export const HeaderPage = () => {
             />
           </div>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="bg-stone-800 hover:bg-stone-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-full px-3 md:px-6">
-              <Plus className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Add Website</span>
-            </Button>
-          </DialogTrigger>
-          {/* <AddWebsiteModal
-            onClose={() => setIsAddModalOpen(false)}
-            onAddWebsite={addWebsite}
-          /> */}
-        </Dialog>
+        <AddPageModal />
       </div>
 
       {/* Mobile Search */}

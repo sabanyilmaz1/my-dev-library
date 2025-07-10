@@ -12,13 +12,12 @@ export const PageCard = ({ page }: { page: Page }) => {
   return (
     <Card
       key={page.id}
-      className="group relative overflow-hidden border-stone-200/60 bg-white/60 backdrop-blur-sm hover:shadow-xl hover:shadow-stone-200/40 transition-all duration-300 hover:-translate-y-1"
+      className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 pb-6 pt-0"
     >
       <CardContent className="p-0">
-        <div className="relative h-32 bg-gradient-to-br from-stone-100 to-stone-200 overflow-hidden">
+        <div className="relative h-32 overflow-hidden">
           <iframe
             //if error
-
             src={page.url}
             className="border-0 pointer-events-none"
             style={{
@@ -93,20 +92,21 @@ export const PageCard = ({ page }: { page: Page }) => {
           </p>
 
           <div className="flex flex-wrap gap-1">
-            {page.tags.slice(0, 3).map((tag) => (
-              <Badge
-                key={tag.id}
-                variant="secondary"
-                className="text-xs bg-stone-100 text-stone-600 hover:bg-stone-200 cursor-pointer"
-                // onClick={() => toggleTag(tag)}
-              >
-                {tag.label}
-              </Badge>
-            ))}
+            {page.tags &&
+              page.tags.slice(0, 3).map((tag) => (
+                <Badge
+                  key={tag.id}
+                  variant="secondary"
+                  className="text-xs bg-accent text-accent-foreground hover:bg-accent/80 cursor-pointer"
+                  // onClick={() => toggleTag(tag)}
+                >
+                  {tag.label}
+                </Badge>
+              ))}
             {page.tags.length > 3 && (
               <Badge
                 variant="secondary"
-                className="text-xs bg-stone-100 text-stone-500"
+                className="text-xs bg-accent text-accent-foreground"
               >
                 +{page.tags.length - 3}
               </Badge>
