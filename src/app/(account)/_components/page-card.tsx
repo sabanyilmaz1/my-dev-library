@@ -6,10 +6,42 @@ import { Copy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Page } from "@prisma/client";
 import { getFaviconUrl } from "@/utils/get-favicon-url";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 
 export const PageCard = ({ page }: { page: Page }) => {
   const faviconUrl = getFaviconUrl(page.url);
   const tags = page.tags as { id: string; label: string }[];
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
+
+  const handleTagClick = (tagLabel: string) => {
+    const params = new URLSearchParams(searchParams);
+    const currentTags = params.get('tags');
+    
+    let newTags: string[] = [];
+    if (currentTags) {
+      const tagsArray = currentTags.split(',');
+      if (tagsArray.includes(tagLabel)) {
+        // Retirer le tag s'il est déjà sélectionné
+        newTags = tagsArray.filter(tag => tag !== tagLabel);
+      } else {
+        // Ajouter le tag s'il n'est pas sélectionné
+        newTags = [...tagsArray, tagLabel];
+      }
+    } else {
+      // Premier tag sélectionné
+      newTags = [tagLabel];
+    }
+
+    if (newTags.length > 0) {
+      params.set('tags', newTags.join(','));
+    } else {
+      params.delete('tags');
+    }
+    
+    replace(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <Card
@@ -95,15 +127,25 @@ export const PageCard = ({ page }: { page: Page }) => {
 
           <div className="flex flex-wrap gap-1">
             {tags &&
-              tags.slice(0, 3).map((tag) => (
-                <Badge
-                  key={tag.id}
-                  variant="secondary"
-                  className="text-xs bg-accent text-accent-foreground hover:bg-accent/80 cursor-pointer"
-                >
-                  {tag.label}
-                </Badge>
-              ))}
+              tags.slice(0, 3).map((tag) => {
+                const currentTags = searchParams.get('tags');
+                const isSelected = currentTags ? currentTags.split(',').includes(tag.label) : false;
+                
+                return (
+                  <Badge
+                    key={tag.id}
+                    variant="secondary"
+                    className={`text-xs cursor-pointer transition-colors ${
+                      isSelected 
+                        ? "bg-primary text-primary-foreground hover:bg-primary/80" 
+                        : "bg-accent text-accent-foreground hover:bg-accent/80"
+                    }`}
+                    onClick={() => handleTagClick(tag.label)}
+                  >
+                    {tag.label}
+                  </Badge>
+                );
+              })}
             {page.tags.length > 3 && (
               <Badge
                 variant="secondary"

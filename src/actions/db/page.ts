@@ -6,16 +6,39 @@ import prisma from "@/lib/prisma";
 import { Page } from "@prisma/client";
 import { z } from "zod";
 
-export const getPagesByUserId = async () => {
+export const getPagesByUserId = async (selectedTags?: string[]) => {
   return withAuth(async (user) => {
-    const pages = await prisma.page.findMany({
+    // Si pas de tags sélectionnés, retourner toutes les pages
+    if (!selectedTags || selectedTags.length === 0) {
+      const pages = await prisma.page.findMany({
+        where: {
+          user: {
+            id: user.id,
+          },
+        },
+      });
+      return pages as Page[];
+    }
+
+    const allPages = await prisma.page.findMany({
       where: {
         user: {
           id: user.id,
         },
       },
     });
-    return pages as Page[];
+
+    const filteredPages = allPages.filter((page) => {
+      const pageTags = page.tags as { id: string; label: string }[];
+      if (!pageTags || pageTags.length === 0) return false;
+
+      const pageTagLabels = pageTags.map((tag) => tag.label);
+      return selectedTags.some((selectedTag) =>
+        pageTagLabels.includes(selectedTag)
+      );
+    });
+
+    return filteredPages as Page[];
   });
 };
 
