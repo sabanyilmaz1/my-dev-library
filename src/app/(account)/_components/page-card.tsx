@@ -10,6 +10,7 @@ import { getFaviconUrl } from "@/utils/get-favicon-url";
 export const PageCard = ({ page }: { page: Page }) => {
   const faviconUrl = getFaviconUrl(page.url);
   const tags = page.tags as { id: string; label: string }[];
+
   return (
     <Card
       key={page.id}
@@ -99,7 +100,6 @@ export const PageCard = ({ page }: { page: Page }) => {
                   key={tag.id}
                   variant="secondary"
                   className="text-xs bg-accent text-accent-foreground hover:bg-accent/80 cursor-pointer"
-                  // onClick={() => toggleTag(tag)}
                 >
                   {tag.label}
                 </Badge>

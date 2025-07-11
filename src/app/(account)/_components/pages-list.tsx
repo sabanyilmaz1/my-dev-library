@@ -6,20 +6,20 @@ export const PagesList = async () => {
   return (
     <section className="flex-1 p-8">
       <h2 className="text-2xl font-light text-stone-800 mb-2">All Pages</h2>
-      <PagesListSuspense />
+      <Suspense fallback={<div>Loading...</div>}>
+        <RenderPages />
+      </Suspense>
     </section>
   );
 };
 
-const PagesListSuspense = async () => {
+const RenderPages = async () => {
   const pages = await getPagesByUserId();
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-8">
-        {pages.map((page) => (
-          <PageCard key={page.id} page={page} />
-        ))}
-      </div>
-    </Suspense>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-8">
+      {pages.map((page) => (
+        <PageCard key={page.id} page={page} />
+      ))}
+    </div>
   );
 };
