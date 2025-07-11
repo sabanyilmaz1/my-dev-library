@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import { useMemo, useCallback, useTransition } from "react";
 
 interface Tag {
   id: string;
@@ -18,45 +19,58 @@ export const FiltersSidebarClient = ({ tags }: FiltersSidebarClientProps) => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
+  const [isPending, startTransition] = useTransition();
 
-  // Obtenir les tags sélectionnés depuis les searchParams
-  const selectedTags = searchParams.get('tags') ? searchParams.get('tags')!.split(',') : [];
+  // Mémoiser les tags sélectionnés pour éviter le recalcul
+  const selectedTags = useMemo(() => {
+    const tagsParam = searchParams.get('tags');
+    return tagsParam ? tagsParam.split(',') : [];
+  }, [searchParams]);
 
-  // Fonction pour basculer la sélection d'un tag
-  const toggleTag = (tagLabel: string) => {
-    const params = new URLSearchParams(searchParams);
-    const currentTags = params.get('tags');
-    
-    let newTags: string[] = [];
-    if (currentTags) {
-      const tagsArray = currentTags.split(',');
-      if (tagsArray.includes(tagLabel)) {
-        // Retirer le tag s'il est déjà sélectionné
-        newTags = tagsArray.filter(tag => tag !== tagLabel);
+  // Mémoiser les tags sélectionnés en Set pour des recherches plus rapides
+  const selectedTagsSet = useMemo(() => {
+    return new Set(selectedTags);
+  }, [selectedTags]);
+
+  // Fonction pour basculer la sélection d'un tag (mémorisée avec transition)
+  const toggleTag = useCallback((tagLabel: string) => {
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams);
+      const currentTags = params.get('tags');
+      
+      let newTags: string[] = [];
+      if (currentTags) {
+        const tagsArray = currentTags.split(',');
+        if (tagsArray.includes(tagLabel)) {
+          // Retirer le tag s'il est déjà sélectionné
+          newTags = tagsArray.filter(tag => tag !== tagLabel);
+        } else {
+          // Ajouter le tag s'il n'est pas sélectionné
+          newTags = [...tagsArray, tagLabel];
+        }
       } else {
-        // Ajouter le tag s'il n'est pas sélectionné
-        newTags = [...tagsArray, tagLabel];
+        // Premier tag sélectionné
+        newTags = [tagLabel];
       }
-    } else {
-      // Premier tag sélectionné
-      newTags = [tagLabel];
-    }
 
-    if (newTags.length > 0) {
-      params.set('tags', newTags.join(','));
-    } else {
+      if (newTags.length > 0) {
+        params.set('tags', newTags.join(','));
+      } else {
+        params.delete('tags');
+      }
+      
+      replace(`${pathname}?${params.toString()}`);
+    });
+  }, [searchParams, pathname, replace, startTransition]);
+
+  // Fonction pour effacer tous les filtres (mémorisée avec transition)
+  const clearFilters = useCallback(() => {
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams);
       params.delete('tags');
-    }
-    
-    replace(`${pathname}?${params.toString()}`);
-  };
-
-  // Fonction pour effacer tous les filtres
-  const clearFilters = () => {
-    const params = new URLSearchParams(searchParams);
-    params.delete('tags');
-    replace(`${pathname}?${params.toString()}`);
-  };
+      replace(`${pathname}?${params.toString()}`);
+    });
+  }, [searchParams, pathname, replace, startTransition]);
 
   return (
     <div className="p-4 md:p-6">
@@ -69,6 +83,7 @@ export const FiltersSidebarClient = ({ tags }: FiltersSidebarClientProps) => {
             variant="ghost"
             size="sm"
             onClick={clearFilters}
+            disabled={isPending}
             className="text-stone-500 hover:text-stone-700 h-6 px-2"
           >
             Clear
@@ -79,16 +94,17 @@ export const FiltersSidebarClient = ({ tags }: FiltersSidebarClientProps) => {
       <ScrollArea className="h-[calc(100vh-200px)]">
         <div className="space-y-2">
           {tags.map((tag) => {
-            const isSelected = selectedTags.includes(tag.label);
+            const isSelected = selectedTagsSet.has(tag.label);
             return (
               <button
                 key={tag.id}
                 onClick={() => toggleTag(tag.label)}
-                className={`w-full flex items-center justify-between p-3 rounded-lg text-left transition-all duration-200 ${
+                disabled={isPending}
+                className={`w-full flex items-center justify-between p-3 rounded-lg text-left transition-all duration-100 ${
                   isSelected
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "hover:bg-stone-50 text-stone-600"
-                }`}
+                } ${isPending ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <span className="text-sm font-medium">{tag.label}</span>
                 {isSelected && (
