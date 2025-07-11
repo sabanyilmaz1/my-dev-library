@@ -21,53 +21,49 @@ export const FiltersSidebarClient = ({ tags }: FiltersSidebarClientProps) => {
   const { replace } = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  // Mémoiser les tags sélectionnés pour éviter le recalcul
   const selectedTags = useMemo(() => {
-    const tagsParam = searchParams.get('tags');
-    return tagsParam ? tagsParam.split(',') : [];
+    const tagsParam = searchParams.get("tags");
+    return tagsParam ? tagsParam.split(",") : [];
   }, [searchParams]);
 
-  // Mémoiser les tags sélectionnés en Set pour des recherches plus rapides
   const selectedTagsSet = useMemo(() => {
     return new Set(selectedTags);
   }, [selectedTags]);
 
-  // Fonction pour basculer la sélection d'un tag (mémorisée avec transition)
-  const toggleTag = useCallback((tagLabel: string) => {
-    startTransition(() => {
-      const params = new URLSearchParams(searchParams);
-      const currentTags = params.get('tags');
-      
-      let newTags: string[] = [];
-      if (currentTags) {
-        const tagsArray = currentTags.split(',');
-        if (tagsArray.includes(tagLabel)) {
-          // Retirer le tag s'il est déjà sélectionné
-          newTags = tagsArray.filter(tag => tag !== tagLabel);
+  const toggleTag = useCallback(
+    (tagLabel: string) => {
+      startTransition(() => {
+        const params = new URLSearchParams(searchParams);
+        const currentTags = params.get("tags");
+
+        let newTags: string[] = [];
+        if (currentTags) {
+          const tagsArray = currentTags.split(",");
+          if (tagsArray.includes(tagLabel)) {
+            newTags = tagsArray.filter((tag) => tag !== tagLabel);
+          } else {
+            newTags = [...tagsArray, tagLabel];
+          }
         } else {
-          // Ajouter le tag s'il n'est pas sélectionné
-          newTags = [...tagsArray, tagLabel];
+          newTags = [tagLabel];
         }
-      } else {
-        // Premier tag sélectionné
-        newTags = [tagLabel];
-      }
 
-      if (newTags.length > 0) {
-        params.set('tags', newTags.join(','));
-      } else {
-        params.delete('tags');
-      }
-      
-      replace(`${pathname}?${params.toString()}`);
-    });
-  }, [searchParams, pathname, replace, startTransition]);
+        if (newTags.length > 0) {
+          params.set("tags", newTags.join(","));
+        } else {
+          params.delete("tags");
+        }
 
-  // Fonction pour effacer tous les filtres (mémorisée avec transition)
+        replace(`${pathname}?${params.toString()}`);
+      });
+    },
+    [searchParams, pathname, replace, startTransition]
+  );
+
   const clearFilters = useCallback(() => {
     startTransition(() => {
       const params = new URLSearchParams(searchParams);
-      params.delete('tags');
+      params.delete("tags");
       replace(`${pathname}?${params.toString()}`);
     });
   }, [searchParams, pathname, replace, startTransition]);
