@@ -15,72 +15,77 @@ interface FiltersSidebarClientProps {
   tags: Tag[];
 }
 
-export const FiltersSidebarClient = ({ tags }: FiltersSidebarClientProps) => {
+// Hook personnalisé pour le debouncing
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
+export const FiltersSidebarClientDebounced = ({ tags }: FiltersSidebarClientProps) => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  // État optimiste pour l'interface utilisateur
-  const [optimisticTags, setOptimisticTags] = useState<string[]>([]);
+  // État local pour l'interface utilisateur (immédiat)
+  const [localTags, setLocalTags] = useState<string[]>([]);
 
-  // Synchroniser l'état optimiste avec les searchParams
+  // Debounce pour les mises à jour URL (après 150ms)
+  const debouncedTags = useDebounce(localTags, 150);
+
+  // Initialiser l'état local avec les searchParams
   useEffect(() => {
     const tagsParam = searchParams.get("tags");
     const currentTags = tagsParam ? tagsParam.split(",") : [];
-    setOptimisticTags(currentTags);
+    setLocalTags(currentTags);
   }, [searchParams]);
 
+  // Mettre à jour l'URL quand les tags debouncés changent
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    
+    if (debouncedTags.length > 0) {
+      params.set("tags", debouncedTags.join(","));
+    } else {
+      params.delete("tags");
+    }
+
+    // Éviter la mise à jour si les params sont identiques
+    const currentUrl = `${pathname}?${params.toString()}`;
+    const expectedUrl = `${pathname}?${searchParams.toString()}`;
+    
+    if (currentUrl !== expectedUrl) {
+      replace(currentUrl);
+    }
+  }, [debouncedTags, pathname, replace, searchParams]);
+
   const selectedTagsSet = useMemo(() => {
-    return new Set(optimisticTags);
-  }, [optimisticTags]);
+    return new Set(localTags);
+  }, [localTags]);
 
-  const toggleTag = useCallback(
-    (tagLabel: string) => {
-      // Mise à jour optimiste immédiate
-      setOptimisticTags(prev => {
-        if (prev.includes(tagLabel)) {
-          return prev.filter(tag => tag !== tagLabel);
-        } else {
-          return [...prev, tagLabel];
-        }
-      });
-
-      // Mise à jour de l'URL (peut être plus lente)
-      const params = new URLSearchParams(searchParams);
-      const currentTags = params.get("tags");
-
-      let newTags: string[] = [];
-      if (currentTags) {
-        const tagsArray = currentTags.split(",");
-        if (tagsArray.includes(tagLabel)) {
-          newTags = tagsArray.filter((tag) => tag !== tagLabel);
-        } else {
-          newTags = [...tagsArray, tagLabel];
-        }
+  const toggleTag = useCallback((tagLabel: string) => {
+    setLocalTags(prev => {
+      if (prev.includes(tagLabel)) {
+        return prev.filter(tag => tag !== tagLabel);
       } else {
-        newTags = [tagLabel];
+        return [...prev, tagLabel];
       }
-
-      if (newTags.length > 0) {
-        params.set("tags", newTags.join(","));
-      } else {
-        params.delete("tags");
-      }
-
-      replace(`${pathname}?${params.toString()}`);
-    },
-    [searchParams, pathname, replace]
-  );
+    });
+  }, []);
 
   const clearFilters = useCallback(() => {
-    // Mise à jour optimiste immédiate
-    setOptimisticTags([]);
-
-    // Mise à jour de l'URL
-    const params = new URLSearchParams(searchParams);
-    params.delete("tags");
-    replace(`${pathname}?${params.toString()}`);
-  }, [searchParams, pathname, replace]);
+    setLocalTags([]);
+  }, []);
 
   return (
     <div className="p-4 md:p-6">
@@ -88,7 +93,7 @@ export const FiltersSidebarClient = ({ tags }: FiltersSidebarClientProps) => {
         <h2 className="text-sm font-medium text-stone-700 tracking-wide uppercase">
           Filters
         </h2>
-        {optimisticTags.length > 0 && (
+        {localTags.length > 0 && (
           <Button
             variant="ghost"
             size="sm"
