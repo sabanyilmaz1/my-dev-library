@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { auth } from "./auth";
 import { headers } from "next/headers";
-import { ActionState } from "@/actions/helper";
 import { User } from "better-auth";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -16,7 +15,7 @@ export function validatedActionWithUser<S extends z.ZodType<any, any>, T>(
   schema: S,
   action: ValidatedActionWithUserFunction<S, T>
 ) {
-  return async (prevState: ActionState, formData: FormData): Promise<T> => {
+  return async (formData: FormData): Promise<T> => {
     const session = await auth.api.getSession({
       headers: await headers(),
     });
