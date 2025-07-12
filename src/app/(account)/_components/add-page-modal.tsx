@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useState } from "react";
-
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,7 +35,14 @@ const AddPageForm = () => {
   const [state, action, pending] = useActionState(createPage, {
     error: false,
     message: "",
+    data: {
+      url: "",
+      title: "",
+      description: "",
+      tags: [],
+    },
   });
+  console.log(state);
   return (
     <>
       <form action={action} className="flex flex-col gap-6">
@@ -52,6 +58,7 @@ const AddPageForm = () => {
               id="url"
               name="url"
               type="text"
+              defaultValue={state.data.url}
               placeholder="https://example.com"
               className="flex-1"
               required
@@ -77,6 +84,7 @@ const AddPageForm = () => {
           <Input
             id="title"
             name="title"
+            defaultValue={state.data.title}
             placeholder="Enter a title"
             className=""
           />
@@ -89,6 +97,7 @@ const AddPageForm = () => {
           <Textarea
             id="description"
             name="description"
+            defaultValue={state.data.description}
             placeholder="Add a description"
             className="resize-none"
             rows={3}
@@ -96,7 +105,9 @@ const AddPageForm = () => {
         </div>
         <InputTags id="tags" label="Tags" name="tags" />
 
-        {state.error && <p>{state.message}</p>}
+        {state.error && (
+          <span className="text-red-500 text-sm">{state.message}</span>
+        )}
         <Button type="submit" disabled={pending}>
           {pending ? "Ajout en cours..." : "Ajouter"}
         </Button>
