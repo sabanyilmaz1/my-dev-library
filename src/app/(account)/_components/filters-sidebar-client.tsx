@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
-import { useMemo, useCallback, useState, useEffect } from "react";
 
 interface Tag {
   id: string;
@@ -20,67 +19,38 @@ export const FiltersSidebarClient = ({ tags }: FiltersSidebarClientProps) => {
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  // État optimiste pour l'interface utilisateur
-  const [optimisticTags, setOptimisticTags] = useState<string[]>([]);
+  const selectedTags = searchParams.get("tags") ? searchParams.get("tags")!.split(",") : [];
 
-  // Synchroniser l'état optimiste avec les searchParams
-  useEffect(() => {
-    const tagsParam = searchParams.get("tags");
-    const currentTags = tagsParam ? tagsParam.split(",") : [];
-    setOptimisticTags(currentTags);
-  }, [searchParams]);
-
-  const selectedTagsSet = useMemo(() => {
-    return new Set(optimisticTags);
-  }, [optimisticTags]);
-
-  const toggleTag = useCallback(
-    (tagLabel: string) => {
-      // Mise à jour optimiste immédiate
-      setOptimisticTags(prev => {
-        if (prev.includes(tagLabel)) {
-          return prev.filter(tag => tag !== tagLabel);
-        } else {
-          return [...prev, tagLabel];
-        }
-      });
-
-      // Mise à jour de l'URL (peut être plus lente)
-      const params = new URLSearchParams(searchParams);
-      const currentTags = params.get("tags");
-
-      let newTags: string[] = [];
-      if (currentTags) {
-        const tagsArray = currentTags.split(",");
-        if (tagsArray.includes(tagLabel)) {
-          newTags = tagsArray.filter((tag) => tag !== tagLabel);
-        } else {
-          newTags = [...tagsArray, tagLabel];
-        }
+  const toggleTag = (tagLabel: string) => {
+    const params = new URLSearchParams(searchParams);
+    const currentTags = params.get("tags");
+    
+    let newTags: string[] = [];
+    if (currentTags) {
+      const tagsArray = currentTags.split(",");
+      if (tagsArray.includes(tagLabel)) {
+        newTags = tagsArray.filter(tag => tag !== tagLabel);
       } else {
-        newTags = [tagLabel];
+        newTags = [...tagsArray, tagLabel];
       }
+    } else {
+      newTags = [tagLabel];
+    }
 
-      if (newTags.length > 0) {
-        params.set("tags", newTags.join(","));
-      } else {
-        params.delete("tags");
-      }
+    if (newTags.length > 0) {
+      params.set("tags", newTags.join(","));
+    } else {
+      params.delete("tags");
+    }
+    
+    replace(`${pathname}?${params.toString()}`);
+  };
 
-      replace(`${pathname}?${params.toString()}`);
-    },
-    [searchParams, pathname, replace]
-  );
-
-  const clearFilters = useCallback(() => {
-    // Mise à jour optimiste immédiate
-    setOptimisticTags([]);
-
-    // Mise à jour de l'URL
+  const clearFilters = () => {
     const params = new URLSearchParams(searchParams);
     params.delete("tags");
     replace(`${pathname}?${params.toString()}`);
-  }, [searchParams, pathname, replace]);
+  };
 
   return (
     <div className="p-4 md:p-6">
@@ -88,7 +58,7 @@ export const FiltersSidebarClient = ({ tags }: FiltersSidebarClientProps) => {
         <h2 className="text-sm font-medium text-stone-700 tracking-wide uppercase">
           Filters
         </h2>
-        {optimisticTags.length > 0 && (
+        {selectedTags.length > 0 && (
           <Button
             variant="ghost"
             size="sm"
@@ -103,12 +73,12 @@ export const FiltersSidebarClient = ({ tags }: FiltersSidebarClientProps) => {
       <ScrollArea className="h-[calc(100vh-200px)]">
         <div className="space-y-2">
           {tags.map((tag) => {
-            const isSelected = selectedTagsSet.has(tag.label);
+            const isSelected = selectedTags.includes(tag.label);
             return (
               <button
                 key={tag.id}
                 onClick={() => toggleTag(tag.label)}
-                className={`w-full flex items-center justify-between p-3 rounded-lg text-left transition-all duration-150 ${
+                className={`w-full flex items-center justify-between p-3 rounded-lg text-left ${
                   isSelected
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "hover:bg-stone-50 text-stone-600"
