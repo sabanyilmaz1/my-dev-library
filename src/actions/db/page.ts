@@ -5,6 +5,7 @@ import { withAuth, validatedActionWithUser } from "@/lib/auth/middleware";
 import prisma from "@/lib/prisma";
 import { Page } from "@prisma/client";
 import { z } from "zod";
+import { generateScreenshot } from "@/lib/screenshot";
 
 export const getPagesByUserId = async (selectedTags?: string[]) => {
   return withAuth(async (user) => {
@@ -128,15 +129,23 @@ export const createPage = async (
             data: newState.data,
           };
         }
-
-        console.log(parsed.data);
-
+        const screenshotResult = await generateScreenshot({
+          url: parsed.data.url,
+          userId: user.id,
+          fileName: `page-${Date.now()}`,
+        });
+        const thumbnailUrl = screenshotResult.success
+          ? screenshotResult.screenshotUrl
+          : "";
+        if (!screenshotResult.success) {
+          console.warn("Screenshot generation failed:", screenshotResult.error);
+        }
         await prisma.page.create({
           data: {
             url: parsed.data.url,
             title: parsed.data.title,
             description: parsed.data.description,
-            thumbnail: "",
+            thumbnail: thumbnailUrl || "",
             tags: parsed.data.tags.map((tag) => ({
               id: tag,
               label: tag,

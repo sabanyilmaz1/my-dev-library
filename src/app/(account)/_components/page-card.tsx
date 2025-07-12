@@ -43,37 +43,56 @@ export const PageCard = ({ page }: { page: Page }) => {
     replace(`${pathname}?${params.toString()}`);
   };
 
+  const copyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(page.url);
+      // Optionnel: ajouter un toast de confirmation
+    } catch (error) {
+      console.error('Failed to copy URL:', error);
+    }
+  };
+
   return (
     <Card
       key={page.id}
       className="group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 pb-6 pt-0"
     >
       <CardContent className="p-0">
-        <div className="relative h-32 overflow-hidden">
-          <iframe
-            //if error
-            src={page.url}
-            className="border-0 pointer-events-none"
-            style={{
-              width: "300%",
-              height: "300%",
-              transform: "scale(0.33)",
-              transformOrigin: "top left",
-              position: "absolute",
-              top: "0",
-              left: "0",
-            }}
-          />
-          {/* Hover Actions */}
-          <div
-            className={`absolute top-2 right-2 flex space-x-1 transition-all duration-200
-            `}
+        <div className="relative h-32 overflow-hidden bg-gradient-to-br from-stone-100 to-stone-200">
+          {page.thumbnail ? (
+            <img
+              src={page.thumbnail}
+              alt={`Screenshot of ${page.title}`}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              onError={(e) => {
+                // Fallback to placeholder if screenshot fails to load
+                e.currentTarget.style.display = "none";
+                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                if (fallback) {
+                  fallback.style.display = "flex";
+                }
+              }}
+            />
+          ) : null}
+          
+          {/* Fallback placeholder */}
+          <div 
+            className={`${page.thumbnail ? "hidden" : "flex"} w-full h-full items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200`}
+            style={{ display: page.thumbnail ? "none" : "flex" }}
           >
+            <div className="text-center text-stone-400">
+              <div className="text-2xl mb-1">🌐</div>
+              <div className="text-xs">No preview</div>
+            </div>
+          </div>
+
+          {/* Hover Actions */}
+          <div className="absolute top-2 right-2 flex space-x-1 transition-all duration-200 opacity-0 group-hover:opacity-100">
             <Button
               size="sm"
               variant="secondary"
               className="h-7 w-7 p-0 bg-white/90 hover:bg-white shadow-sm"
-              // onClick={() => copyUrl(website.url)}
+              onClick={copyUrl}
             >
               <Copy className="h-3 w-3 text-stone-600" />
             </Button>
