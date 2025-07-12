@@ -129,13 +129,20 @@ export const createPage = async (
           };
         }
 
+        console.log(parsed.data);
+
         await prisma.page.create({
           data: {
             url: parsed.data.url,
             title: parsed.data.title,
             description: parsed.data.description,
             thumbnail: "",
-            tags: [{ id: "1", label: "React", value: "react" }],
+            tags: parsed.data.tags.map((tag) => ({
+              id: tag,
+              label: tag,
+              value: tag.toLowerCase(),
+              userId: user.id,
+            })),
             user: {
               connect: {
                 id: user.id,
