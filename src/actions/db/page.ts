@@ -6,10 +6,10 @@ import prisma from "@/lib/prisma";
 import { Page } from "@prisma/client";
 import { z } from "zod";
 import { generateScreenshot } from "@/lib/screenshot";
+import { revalidatePath } from "next/cache";
 
 export const getPagesByUserId = async (selectedTags?: string[]) => {
   return withAuth(async (user) => {
-    // Si pas de tags sélectionnés, retourner toutes les pages
     if (!selectedTags || selectedTags.length === 0) {
       const pages = await prisma.page.findMany({
         where: {
@@ -174,6 +174,7 @@ export const createPage = async (
           });
         }
 
+        revalidatePath("/home");
         return {
           error: false,
           message: "Page created",
