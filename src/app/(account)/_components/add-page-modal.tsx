@@ -43,6 +43,7 @@ const AddPageForm = () => {
     },
   });
   console.log(state);
+
   return (
     <>
       <form action={action} className="flex flex-col gap-6">
@@ -63,14 +64,14 @@ const AddPageForm = () => {
               className="flex-1"
               required
             />
-            {/* <Button
+            <Button
               type="button"
               variant="outline"
               size="sm"
               className="px-3 whitespace-nowrap bg-transparent w-full sm:w-auto"
             >
               ✨ AI Generate
-            </Button> */}
+            </Button>
           </div>
         </div>
 
