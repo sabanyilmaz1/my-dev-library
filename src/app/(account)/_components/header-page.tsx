@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import React, { useState } from "react";
 import { FiltersSidebar } from "./filters-sidebar";
 import { AddPageModal } from "./add-page-modal";
+import { AddTweetModal } from "./add-tweet-modal";
 
 export const HeaderPage = () => {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
@@ -61,7 +62,10 @@ export const HeaderPage = () => {
             />
           </div>
         </div>
-        <AddPageModal />
+        <div className="flex items-center space-x-2">
+          <AddPageModal />
+          <AddTweetModal />
+        </div>
       </div>
 
       {/* Mobile Search */}
