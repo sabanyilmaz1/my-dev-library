@@ -42,7 +42,19 @@ const AddPageForm = () => {
       tags: [],
     },
   });
+
+  const [url, setUrl] = useState("");
+
   console.log(state);
+
+  const generatePage = async (url: string) => {
+    const response = await fetch("/api/generate-content", {
+      method: "POST",
+      body: JSON.stringify({ url }),
+    });
+    const data = await response.json();
+    console.log(data);
+  };
 
   return (
     <>
@@ -59,7 +71,8 @@ const AddPageForm = () => {
               id="url"
               name="url"
               type="text"
-              defaultValue={state.data.url}
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
               placeholder="https://example.com"
               className="flex-1"
               required
@@ -69,6 +82,7 @@ const AddPageForm = () => {
               variant="outline"
               size="sm"
               className="px-3 whitespace-nowrap bg-transparent w-full sm:w-auto"
+              onClick={() => generatePage(url)}
             >
               ✨ AI Generate
             </Button>

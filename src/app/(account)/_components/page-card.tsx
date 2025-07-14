@@ -17,14 +17,14 @@ export const PageCard = ({ page }: { page: Page }) => {
 
   const handleTagClick = (tagLabel: string) => {
     const params = new URLSearchParams(searchParams);
-    const currentTags = params.get('tags');
-    
+    const currentTags = params.get("tags");
+
     let newTags: string[] = [];
     if (currentTags) {
-      const tagsArray = currentTags.split(',');
+      const tagsArray = currentTags.split(",");
       if (tagsArray.includes(tagLabel)) {
         // Retirer le tag s'il est déjà sélectionné
-        newTags = tagsArray.filter(tag => tag !== tagLabel);
+        newTags = tagsArray.filter((tag) => tag !== tagLabel);
       } else {
         // Ajouter le tag s'il n'est pas sélectionné
         newTags = [...tagsArray, tagLabel];
@@ -35,11 +35,11 @@ export const PageCard = ({ page }: { page: Page }) => {
     }
 
     if (newTags.length > 0) {
-      params.set('tags', newTags.join(','));
+      params.set("tags", newTags.join(","));
     } else {
-      params.delete('tags');
+      params.delete("tags");
     }
-    
+
     replace(`${pathname}?${params.toString()}`);
   };
 
@@ -48,7 +48,7 @@ export const PageCard = ({ page }: { page: Page }) => {
       await navigator.clipboard.writeText(page.url);
       // Optionnel: ajouter un toast de confirmation
     } catch (error) {
-      console.error('Failed to copy URL:', error);
+      console.error("Failed to copy URL:", error);
     }
   };
 
@@ -67,17 +67,20 @@ export const PageCard = ({ page }: { page: Page }) => {
               onError={(e) => {
                 // Fallback to placeholder if screenshot fails to load
                 e.currentTarget.style.display = "none";
-                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                const fallback = e.currentTarget
+                  .nextElementSibling as HTMLElement;
                 if (fallback) {
                   fallback.style.display = "flex";
                 }
               }}
             />
           ) : null}
-          
+
           {/* Fallback placeholder */}
-          <div 
-            className={`${page.thumbnail ? "hidden" : "flex"} w-full h-full items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200`}
+          <div
+            className={`${
+              page.thumbnail ? "hidden" : "flex"
+            } w-full h-full items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200`}
             style={{ display: page.thumbnail ? "none" : "flex" }}
           >
             <div className="text-center text-stone-400">
@@ -146,17 +149,19 @@ export const PageCard = ({ page }: { page: Page }) => {
 
           <div className="flex flex-wrap gap-1">
             {tags &&
-              tags.slice(0, 3).map((tag) => {
-                const currentTags = searchParams.get('tags');
-                const isSelected = currentTags ? currentTags.split(',').includes(tag.label) : false;
-                
+              tags.map((tag) => {
+                const currentTags = searchParams.get("tags");
+                const isSelected = currentTags
+                  ? currentTags.split(",").includes(tag.label)
+                  : false;
+
                 return (
                   <Badge
                     key={tag.id}
                     variant="secondary"
                     className={`text-xs cursor-pointer transition-colors ${
-                      isSelected 
-                        ? "bg-primary text-primary-foreground hover:bg-primary/80" 
+                      isSelected
+                        ? "bg-primary text-primary-foreground hover:bg-primary/80"
                         : "bg-accent text-accent-foreground hover:bg-accent/80"
                     }`}
                     onClick={() => handleTagClick(tag.label)}
@@ -165,14 +170,6 @@ export const PageCard = ({ page }: { page: Page }) => {
                   </Badge>
                 );
               })}
-            {page.tags.length > 3 && (
-              <Badge
-                variant="secondary"
-                className="text-xs bg-accent text-accent-foreground"
-              >
-                +{page.tags.length - 3}
-              </Badge>
-            )}
           </div>
         </div>
       </CardContent>
