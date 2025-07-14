@@ -25,6 +25,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import InputTags from "@/components/input-tags";
+import { Tag } from "emblor";
 
 const WORDING_HEADER = {
   title: "Ajouter une page",
@@ -44,6 +45,9 @@ const AddPageForm = () => {
   });
 
   const [url, setUrl] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [tags, setTags] = useState<Tag[]>([]);
 
   console.log(state);
 
@@ -54,6 +58,12 @@ const AddPageForm = () => {
     });
     const data = await response.json();
     console.log(data);
+    
+    if (data.title) setTitle(data.title);
+    if (data.description) setDescription(data.description);
+    if (data.tags && Array.isArray(data.tags)) {
+      setTags(data.tags.map((tag: string) => ({ id: crypto.randomUUID(), text: tag })));
+    }
   };
 
   return (
@@ -99,7 +109,8 @@ const AddPageForm = () => {
           <Input
             id="title"
             name="title"
-            defaultValue={state.data.title}
+            value={title || state.data.title}
+            onChange={(e) => setTitle(e.target.value)}
             placeholder="Enter a title"
             className=""
           />
@@ -112,13 +123,14 @@ const AddPageForm = () => {
           <Textarea
             id="description"
             name="description"
-            defaultValue={state.data.description}
+            value={description || state.data.description}
+            onChange={(e) => setDescription(e.target.value)}
             placeholder="Add a description"
             className="resize-none"
             rows={3}
           />
         </div>
-        <InputTags id="tags" label="Tags" name="tags" />
+        <InputTags id="tags" label="Tags" name="tags" tags={tags} setTags={setTags} />
 
         {state.error && (
           <span className="text-red-500 text-sm">{state.message}</span>

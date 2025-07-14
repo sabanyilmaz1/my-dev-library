@@ -25,6 +25,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import InputTags from "@/components/input-tags";
+import { Tag } from "emblor";
 
 const WORDING_HEADER = {
   title: "Ajouter un tweet",
@@ -44,6 +45,10 @@ const AddTweetForm = () => {
   });
 
   const [tweetContent, setTweetContent] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [url, setUrl] = useState("");
+  const [tags, setTags] = useState<Tag[]>([]);
 
   console.log(state);
 
@@ -54,6 +59,13 @@ const AddTweetForm = () => {
     });
     const data = await response.json();
     console.log(data);
+    
+    if (data.title) setTitle(data.title);
+    if (data.description) setDescription(data.description);
+    if (data.url) setUrl(data.url);
+    if (data.tags && Array.isArray(data.tags)) {
+      setTags(data.tags.map((tag: string) => ({ id: crypto.randomUUID(), text: tag })));
+    }
   };
 
   return (
@@ -100,6 +112,8 @@ const AddTweetForm = () => {
             id="url"
             name="url"
             type="text"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
             placeholder="https://twitter.com/user/status/..."
             className=""
           />
@@ -115,7 +129,8 @@ const AddTweetForm = () => {
           <Input
             id="title"
             name="title"
-            defaultValue={state.data.title}
+            value={title || state.data.title}
+            onChange={(e) => setTitle(e.target.value)}
             placeholder="Entrez un titre"
             className=""
           />
@@ -128,13 +143,14 @@ const AddTweetForm = () => {
           <Textarea
             id="description"
             name="description"
-            defaultValue={state.data.description}
+            value={description || state.data.description}
+            onChange={(e) => setDescription(e.target.value)}
             placeholder="Ajoutez une description"
             className="resize-none"
             rows={3}
           />
         </div>
-        <InputTags id="tags" label="Tags" name="tags" />
+        <InputTags id="tags" label="Tags" name="tags" tags={tags} setTags={setTags} />
 
         {state.error && (
           <span className="text-red-500 text-sm">{state.message}</span>

@@ -7,11 +7,16 @@ import { Label } from "@/components/ui/label";
 
 interface InputTagsProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
+  tags?: Tag[];
+  setTags?: (tags: Tag[]) => void;
 }
 
-export default function InputTags({ id, label, name }: InputTagsProps) {
-  const [exampleTags, setExampleTags] = useState<Tag[]>([]);
+export default function InputTags({ id, label, name, tags, setTags }: InputTagsProps) {
+  const [internalTags, setInternalTags] = useState<Tag[]>([]);
   const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null);
+  
+  const currentTags = tags || internalTags;
+  const setCurrentTags = setTags || setInternalTags;
 
   return (
     <div className="space-y-2">
@@ -19,8 +24,8 @@ export default function InputTags({ id, label, name }: InputTagsProps) {
       <TagInput
         name={`${name}_display`}
         id={id}
-        tags={exampleTags}
-        setTags={setExampleTags}
+        tags={currentTags}
+        setTags={setCurrentTags}
         placeholder="Add a tag"
         styleClasses={{
           tagList: {
@@ -42,7 +47,7 @@ export default function InputTags({ id, label, name }: InputTagsProps) {
       <input
         type="hidden"
         name={name}
-        value={JSON.stringify(exampleTags.map((tag) => tag.text))}
+        value={JSON.stringify(currentTags.map((tag) => tag.text))}
       />
     </div>
   );

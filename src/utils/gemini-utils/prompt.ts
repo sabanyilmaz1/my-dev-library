@@ -34,10 +34,10 @@ Return **ONLY** a valid JSON object with the following exact structure:
 * **Tags**:
     * Must be lowercase, single words.
     * Must focus on technical aspects (e.g., programming languages, frameworks, tools, libraries, concepts, resource types).
-    * **Prioritize using existing tags if provided in the \`<already_tags>\` section and if they are relevant to the page content.**
-    * Only create new tags if existing ones do not adequately describe the page's web development purpose, category, or main technologies/tools mentioned.
-    * Ensure there are always exactly 4 tags, mixing existing and new tags as needed.
-    * Examples: "javascript", "react", "api", "tutorial", "documentation", "library", "framework", "tool", "guide", "reference".
+    * **CRITICAL: When considering tags from the \`<already_tags>\` list, *only use them if they are a PERFECT and DIRECT match* for the page's core technical content, main technology, or primary purpose. If an existing tag is only vaguely related or not the most precise fit, prioritize creating a new, highly relevant tag.**
+    * Create new tags when existing ones do not adequately and precisely describe the page's specific web development purpose, category, or primary technologies/tools mentioned.
+    * Ensure there are always exactly 4 tags. This may involve a mix of highly relevant existing tags and newly created, highly specific tags to reach the count of 4.
+    * Examples: "javascript", "react", "api", "tutorial", "documentation", "library", "framework", "tool", "guide", "reference", "performance", "security", "testing", "deployment", "css", "html", "nodejs", "typescript", "vue", "angular", "nextjs", "ux", "ui", "seo", "webdev".
 </output>
 
 <examples>
@@ -68,9 +68,9 @@ For a Next.js deployment tool:
 }
 \`\`\`
 
-**Example with existing tags:**
+**Example with existing tags (PERFECT MATCH for all):**
 If \`<already_tags>\` contains: "react, javascript, css, tutorial, tool, api, nextjs, hooks"
-And the page is about a React API tutorial, prefer existing tags:
+And the page is about a React API integration tutorial:
 \`\`\`json
 {
   "title": "React API Integration Tutorial",
@@ -78,20 +78,19 @@ And the page is about a React API tutorial, prefer existing tags:
   "tags": ["react", "javascript", "tutorial", "api"]
 }
 \`\`\`
-*(Note: Used existing "react", "javascript", "tutorial", "api" tags as they perfectly match the content.)*
+*(Note: All selected tags ("react", "javascript", "tutorial", "api") were a perfect and direct match from the existing list for the page's core content.)*
 
-**Example with existing tags requiring new tags:**
-If \`<already_tags>\` contains: "javascript, react, api, tutorial, documentation, nodejs, typescript, tool"
-And the page is about a Node.js Express tutorial, prefer existing tags:
+**Example with existing tags (MIX of existing and new due to strict relevance):**
+If \`<already_tags>\` contains: "javascript, react, api, tutorial, documentation, nodejs, typescript, tool, database"
+And the page is about a tutorial on *optimizing SQL queries for Node.js applications*:
 \`\`\`json
 {
-{
-  "title": "Express.js Tutorial Guide",
-  "description": "Tutorial for building web applications with Express.js framework.",
-  "tags": ["nodejs", "tutorial", "javascript", "framework"]
+  "title": "Node.js SQL Query Optimization",
+  "description": "Guide to writing efficient SQL queries for Node.js backend applications.",
+  "tags": ["nodejs", "sql", "performance", "backend"]
 }
 \`\`\`
-*(Note: Used existing "nodejs", "tutorial", "javascript" tags, and created "framework" as needed.)*
+*(Note: "nodejs" and "javascript" were considered from existing tags, but "sql", "performance", and "backend" were created as more precise fits for the core topic, despite "database" being vaguely present in <already_tags>, because "sql" and "performance" are more direct and specific.)*
 </examples>
 `;
 
