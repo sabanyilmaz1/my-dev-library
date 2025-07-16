@@ -10,9 +10,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Page d'Amour - Créez une page web romantique personnalisée",
+  title: "My Dev Library",
   description:
-    "Créez en 5 minutes une page web romantique unique avec vos photos, souvenirs et poèmes. Cadeau numérique personnalisé, hébergé à vie, sans abonnement.",
+    "My Dev Library est une bibliothèque de ressources pour les développeurs. Elle permet de stocker et de partager des ressources utiles pour les développeurs.",
 };
 
 export default function RootLayout({

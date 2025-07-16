@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { FiltersSidebar } from "../_components/filters-sidebar";
 import { HeaderPage } from "../_components/header-page";
 import { PagesList } from "../_components/pages-list";
@@ -5,6 +6,12 @@ import { PagesList } from "../_components/pages-list";
 interface HomePageProps {
   searchParams: Promise<{ tags?: string }>;
 }
+
+export const metadata: Metadata = {
+  title: "My Dev Library - Home",
+  description:
+    "My Dev Library est une bibliothèque de ressources pour les développeurs. Elle permet de stocker et de partager des ressources utiles pour les développeurs.",
+};
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const resolvedSearchParams = await searchParams;
