@@ -65,7 +65,6 @@ export const PageCard = ({ page }: { page: Page }) => {
               alt={`Screenshot of ${page.title}`}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               onError={(e) => {
-                // Fallback to placeholder if screenshot fails to load
                 e.currentTarget.style.display = "none";
                 const fallback = e.currentTarget
                   .nextElementSibling as HTMLElement;
