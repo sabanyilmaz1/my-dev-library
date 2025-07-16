@@ -1,6 +1,6 @@
 "use client";
 
-import { InputHTMLAttributes, useState } from "react";
+import { InputHTMLAttributes, useState, Dispatch, SetStateAction } from "react";
 import { Tag, TagInput } from "emblor";
 
 import { Label } from "@/components/ui/label";
@@ -8,13 +8,19 @@ import { Label } from "@/components/ui/label";
 interface InputTagsProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
   tags?: Tag[];
-  setTags?: (tags: Tag[]) => void;
+  setTags?: Dispatch<SetStateAction<Tag[]>>;
 }
 
-export default function InputTags({ id, label, name, tags, setTags }: InputTagsProps) {
+export default function InputTags({
+  id,
+  label,
+  name,
+  tags,
+  setTags,
+}: InputTagsProps) {
   const [internalTags, setInternalTags] = useState<Tag[]>([]);
   const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null);
-  
+
   const currentTags = tags || internalTags;
   const setCurrentTags = setTags || setInternalTags;
 
