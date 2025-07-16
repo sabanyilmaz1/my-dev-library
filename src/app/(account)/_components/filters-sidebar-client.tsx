@@ -19,17 +19,19 @@ export const FiltersSidebarClient = ({ tags }: FiltersSidebarClientProps) => {
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  const selectedTags = searchParams.get("tags") ? searchParams.get("tags")!.split(",") : [];
+  const selectedTags = searchParams.get("tags")
+    ? searchParams.get("tags")!.split(",")
+    : [];
 
   const toggleTag = (tagLabel: string) => {
     const params = new URLSearchParams(searchParams);
     const currentTags = params.get("tags");
-    
+
     let newTags: string[] = [];
     if (currentTags) {
       const tagsArray = currentTags.split(",");
       if (tagsArray.includes(tagLabel)) {
-        newTags = tagsArray.filter(tag => tag !== tagLabel);
+        newTags = tagsArray.filter((tag) => tag !== tagLabel);
       } else {
         newTags = [...tagsArray, tagLabel];
       }
@@ -42,7 +44,7 @@ export const FiltersSidebarClient = ({ tags }: FiltersSidebarClientProps) => {
     } else {
       params.delete("tags");
     }
-    
+
     replace(`${pathname}?${params.toString()}`);
   };
 
@@ -71,14 +73,14 @@ export const FiltersSidebarClient = ({ tags }: FiltersSidebarClientProps) => {
       </div>
 
       <ScrollArea className="h-[calc(100vh-200px)]">
-        <div className="space-y-2">
+        <div className="space-y-1">
           {tags.map((tag) => {
             const isSelected = selectedTags.includes(tag.label);
             return (
               <button
                 key={tag.id}
                 onClick={() => toggleTag(tag.label)}
-                className={`w-full flex items-center justify-between p-3 rounded-lg text-left ${
+                className={`w-full flex items-center justify-between p-2 rounded-lg text-left ${
                   isSelected
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "hover:bg-stone-50 text-stone-600"
@@ -86,7 +88,7 @@ export const FiltersSidebarClient = ({ tags }: FiltersSidebarClientProps) => {
               >
                 <span className="text-sm font-medium">{tag.label}</span>
                 {isSelected && (
-                  <span className="text-xs bg-primary-foreground/20 text-primary-foreground px-2 py-1 rounded-full">
+                  <span className="text-xs bg-primary-foreground/20 text-primary-foreground px-2 rounded-full">
                     ✓
                   </span>
                 )}

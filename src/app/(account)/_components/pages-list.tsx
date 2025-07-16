@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import { PageCard } from "./page-card";
 import { getPagesByUserId } from "@/actions/db/page";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface PagesListProps {
   searchParams?: { tags?: string };
@@ -53,10 +54,12 @@ const RenderPages = async ({ selectedTags }: { selectedTags?: string[] }) => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {pages.map((page) => (
-        <PageCard key={page.id} page={page} />
-      ))}
-    </div>
+    <ScrollArea className="h-[calc(100vh-200px)]">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {pages.map((page) => (
+          <PageCard key={page.id} page={page} />
+        ))}
+      </div>
+    </ScrollArea>
   );
 };
