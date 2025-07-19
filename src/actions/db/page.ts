@@ -72,9 +72,10 @@ const createPageSchema = z.object({
     .max(10, "Maximum 10 tags allowed"),
 });
 
-type CreatePageState = {
+export type CreatePageState = {
   error: boolean;
   message: string;
+  open: boolean;
   data: {
     url: string;
     title: string;
@@ -124,6 +125,7 @@ export const createPage = async (
         if (!parsed.success) {
           const firstError = parsed.error.errors[0];
           return {
+            open: true,
             error: true,
             message: firstError.message || "Invalid data provided",
             data: newState.data,
@@ -178,6 +180,7 @@ export const createPage = async (
         return {
           error: false,
           message: "Page created",
+          open: false,
           data: {
             url: "",
             title: "",
@@ -191,6 +194,7 @@ export const createPage = async (
     return result;
   } catch (error) {
     return {
+      open: true,
       error: true,
       message: error instanceof Error ? error.message : "User not found",
       data: newState.data,

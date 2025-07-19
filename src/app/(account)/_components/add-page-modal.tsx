@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,8 +19,8 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Plus } from "lucide-react";
-import { createPage } from "@/actions/db/page";
+import { Loader2, Plus } from "lucide-react";
+import { createPage, CreatePageState } from "@/actions/db/page";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,24 +32,19 @@ const WORDING_HEADER = {
   description: "Ajoutez une page à votre collection.",
 };
 
-const AddPageForm = () => {
-  const [state, action, pending] = useActionState(createPage, {
-    error: false,
-    message: "",
-    data: {
-      url: "",
-      title: "",
-      description: "",
-      tags: [],
-    },
-  });
-
+const AddPageForm = ({
+  state,
+  action,
+  pending,
+}: {
+  state: CreatePageState;
+  action: (payload: FormData) => void;
+  pending: boolean;
+}) => {
   const [url, setUrl] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState<Tag[]>([]);
-
-  console.log(state);
 
   const generatePage = async (url: string) => {
     const response = await fetch("/api/generate-content", {
@@ -58,13 +53,24 @@ const AddPageForm = () => {
     });
     const data = await response.json();
     console.log(data);
-    
+
     if (data.title) setTitle(data.title);
     if (data.description) setDescription(data.description);
     if (data.tags && Array.isArray(data.tags)) {
-      setTags(data.tags.map((tag: string) => ({ id: crypto.randomUUID(), text: tag })));
+      setTags(
+        data.tags.map((tag: string) => ({ id: crypto.randomUUID(), text: tag }))
+      );
     }
   };
+
+  if (pending) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Ajout en cours...
+      </div>
+    );
+  }
 
   return (
     <>
@@ -130,11 +136,28 @@ const AddPageForm = () => {
             rows={3}
           />
         </div>
-        <InputTags id="tags" label="Tags" name="tags" tags={tags} setTags={setTags} />
+        <InputTags
+          id="tags"
+          label="Tags"
+          name="tags"
+          tags={tags}
+          setTags={setTags}
+        />
 
         {state.error && (
           <span className="text-red-500 text-sm">{state.message}</span>
         )}
+        {/* {isDesktop ? (
+          <DialogClose asChild>
+            <Button type="submit" disabled={pending}>
+              {pending ? "Ajout en cours..." : "Ajouter"}
+            </Button>
+          </DialogClose>
+        ) : (
+          <Button type="submit" disabled={pending}>
+            {pending ? "Ajout en cours..." : "Ajouter"}
+          </Button>
+        )} */}
         <Button type="submit" disabled={pending}>
           {pending ? "Ajout en cours..." : "Ajouter"}
         </Button>
@@ -146,6 +169,22 @@ const AddPageForm = () => {
 export function AddPageModal() {
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  const [state, action, pending] = useActionState(createPage, {
+    error: false,
+    message: "",
+    open: false,
+    data: {
+      url: "",
+      title: "",
+      description: "",
+      tags: [],
+    },
+  });
+
+  useEffect(() => {
+    setOpen(state.open);
+  }, [state.open]);
 
   if (isDesktop) {
     return (
@@ -161,7 +200,7 @@ export function AddPageModal() {
             <DialogTitle>{WORDING_HEADER.title}</DialogTitle>
             <DialogDescription>{WORDING_HEADER.description}</DialogDescription>
           </DialogHeader>
-          <AddPageForm />
+          <AddPageForm state={state} action={action} pending={pending} />
         </DialogContent>
       </Dialog>
     );
@@ -180,7 +219,7 @@ export function AddPageModal() {
           <DrawerTitle>{WORDING_HEADER.title}</DrawerTitle>
           <DrawerDescription>{WORDING_HEADER.description}</DrawerDescription>
         </DrawerHeader>
-        <AddPageForm />
+        <AddPageForm state={state} action={action} pending={pending} />
       </DrawerContent>
     </Drawer>
   );
