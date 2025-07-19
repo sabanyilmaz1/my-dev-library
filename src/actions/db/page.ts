@@ -23,6 +23,9 @@ const getCachedPagesByUserId = (userId: string) => {
             id: userId,
           },
         },
+        orderBy: {
+          createdAt: "desc",
+        },
       });
 
       const dbEndTime = performance.now();
