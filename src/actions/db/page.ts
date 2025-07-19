@@ -6,40 +6,47 @@ import prisma from "@/lib/prisma";
 import { Page } from "@prisma/client";
 import { z } from "zod";
 import { generateScreenshot } from "@/lib/screenshot";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, unstable_cache, revalidateTag } from "next/cache";
 
-export const getPagesByUserId = async (selectedTags?: string[]) => {
-  return withAuth(async (user) => {
-    if (!selectedTags || selectedTags.length === 0) {
+// Fonction privée pour récupérer les pages avec cache
+const getCachedPagesByUserId = (userId: string) => {
+  return unstable_cache(
+    async (): Promise<Page[]> => {
+      console.log(
+        `🔍 [CACHE MISS] Requête DB pour l'utilisateur: ${userId} - ${new Date().toISOString()}`
+      );
       const pages = await prisma.page.findMany({
         where: {
           user: {
-            id: user.id,
+            id: userId,
           },
         },
       });
-      return pages as Page[];
-    }
-
-    const allPages = await prisma.page.findMany({
-      where: {
-        user: {
-          id: user.id,
-        },
-      },
-    });
-
-    const filteredPages = allPages.filter((page) => {
-      const pageTags = page.tags as { id: string; label: string }[];
-      if (!pageTags || pageTags.length === 0) return false;
-
-      const pageTagLabels = pageTags.map((tag) => tag.label);
-      return selectedTags.some((selectedTag) =>
-        pageTagLabels.includes(selectedTag)
+      console.log(
+        `📊 [DB QUERY] ${pages.length} pages récupérées pour l'utilisateur: ${userId}`
       );
-    });
+      return pages as Page[];
+    },
+    [`user-pages-${userId}`], // clé de cache unique par utilisateur
+    {
+      tags: [`user-pages-${userId}`], // tag pour invalider le cache
+    }
+  );
+};
 
-    return filteredPages as Page[];
+export const getPagesByUserId = async () => {
+  return withAuth(async (user) => {
+    console.log(
+      `⚡ [FUNCTION CALL] getPagesByUserId appelé pour l'utilisateur: ${
+        user.id
+      } - ${new Date().toISOString()}`
+    );
+    const cachedFn = getCachedPagesByUserId(user.id);
+    const result = await cachedFn();
+    console.log(
+      `✅ [CACHE HIT] ${result.length} pages retournées depuis le cache pour l'utilisateur: ${user.id}`
+    );
+    return result;
   });
 };
 
@@ -176,7 +183,15 @@ export const createPage = async (
           });
         }
 
+        // Invalider le cache des pages pour cet utilisateur
+        console.log(
+          `🗑️ [CACHE INVALIDATION] Cache invalidé pour l'utilisateur: ${
+            user.id
+          } - ${new Date().toISOString()}`
+        );
+        revalidateTag(`user-pages-${user.id}`);
         revalidatePath("/home");
+
         return {
           error: false,
           message: "Page created",
