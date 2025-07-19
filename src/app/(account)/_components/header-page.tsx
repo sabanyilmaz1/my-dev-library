@@ -12,11 +12,12 @@ import { Separator } from "@/components/ui/separator";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import React, { useState } from "react";
-import { FiltersSidebar } from "./filters-sidebar";
 import { AddPageModal } from "./add-page-modal";
 import { AddTweetModal } from "./add-tweet-modal";
+import { Tag } from "@prisma/client";
+import { FiltersSidebarClient } from "./filters-sidebar-client";
 
-export const HeaderPage = () => {
+export const HeaderPage = ({ tags }: { tags: Tag[] }) => {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   return (
     <header className="sticky top-0 z-40 border-b bg-amber-50/30  backdrop-blur-xl">
@@ -39,7 +40,7 @@ export const HeaderPage = () => {
               <SheetHeader>
                 <SheetTitle className="text-stone-800"></SheetTitle>
               </SheetHeader>
-              <FiltersSidebar />
+              <FiltersSidebarClient tags={tags} />
             </SheetContent>
           </Sheet>
 

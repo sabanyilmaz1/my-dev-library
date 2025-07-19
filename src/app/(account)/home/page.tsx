@@ -1,7 +1,8 @@
 import { Metadata } from "next";
-import { FiltersSidebar } from "../_components/filters-sidebar";
 import { HeaderPage } from "../_components/header-page";
 import { PagesList } from "../_components/pages-list";
+import { getTagsByUserId } from "@/actions/db/tags";
+import { FiltersSidebarClient } from "../_components/filters-sidebar-client";
 
 interface HomePageProps {
   searchParams: Promise<{ tags?: string }>;
@@ -15,13 +16,14 @@ export const metadata: Metadata = {
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const resolvedSearchParams = await searchParams;
+  const tags = await getTagsByUserId();
 
   return (
     <main>
-      <HeaderPage />
+      <HeaderPage tags={tags} />
       <div className="flex">
         <aside className="hidden md:block w-72 border-r border-stone-200/60 bg-white/40 backdrop-blur-sm min-h-screen">
-          <FiltersSidebar />
+          <FiltersSidebarClient tags={tags} />
         </aside>
         <PagesList searchParams={resolvedSearchParams} />
       </div>
