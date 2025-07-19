@@ -34,7 +34,7 @@ export const PagesList = async ({ searchParams }: PagesListProps) => {
 };
 
 const RenderPages = async ({ selectedTags }: { selectedTags?: string[] }) => {
-  const pages = await getPagesByUserId();
+  const pages = await getPagesByUserId(selectedTags);
 
   if (pages.length === 0) {
     return (

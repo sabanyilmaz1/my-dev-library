@@ -43,7 +43,7 @@ const getCachedPagesByUserId = (userId: string) => {
   );
 };
 
-export const getPagesByUserId = async () => {
+export const getPagesByUserId = async (selectedTags?: string[]) => {
   return withAuth(async (user) => {
     const functionStartTime = performance.now();
     console.log(
@@ -55,13 +55,27 @@ export const getPagesByUserId = async () => {
     const cachedFn = getCachedPagesByUserId(user.id);
     const result = await cachedFn();
 
+    if (!selectedTags || selectedTags.length === 0) {
+      return result;
+    }
+
+    const filteredPages = result.filter((page) => {
+      const pageTags = page.tags as { id: string; label: string }[];
+      if (!pageTags || pageTags.length === 0) return false;
+
+      const pageTagLabels = pageTags.map((tag) => tag.label);
+      return selectedTags?.some((selectedTag) =>
+        pageTagLabels.includes(selectedTag)
+      );
+    });
+
     const functionEndTime = performance.now();
     const totalDuration = (functionEndTime - functionStartTime).toFixed(2);
     console.log(
       `✅ [RESPONSE] ${result.length} pages retournées pour l'utilisateur: ${user.id} | ⏱️ Temps total: ${totalDuration}ms`
     );
 
-    return result;
+    return filteredPages;
   });
 };
 
