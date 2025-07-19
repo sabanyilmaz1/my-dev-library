@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,8 +19,8 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Plus } from "lucide-react";
-import { createPage } from "@/actions/db/page";
+import { Loader2, Plus } from "lucide-react";
+import { createPage, CreatePageState } from "@/actions/db/page";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,25 +32,20 @@ const WORDING_HEADER = {
   description: "Ajoutez un tweet à votre collection.",
 };
 
-const AddTweetForm = () => {
-  const [state, action, pending] = useActionState(createPage, {
-    error: false,
-    message: "",
-    data: {
-      url: "",
-      title: "",
-      description: "",
-      tags: [],
-    },
-  });
-
+const AddTweetForm = ({
+  state,
+  action,
+  pending,
+}: {
+  state: CreatePageState;
+  action: (payload: FormData) => void;
+  pending: boolean;
+}) => {
   const [tweetContent, setTweetContent] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
   const [tags, setTags] = useState<Tag[]>([]);
-
-  console.log(state);
 
   const generateTweet = async (content: string) => {
     const response = await fetch("/api/generate-content-tweet", {
@@ -58,13 +53,14 @@ const AddTweetForm = () => {
       body: JSON.stringify({ content }),
     });
     const data = await response.json();
-    console.log(data);
-    
+
     if (data.title) setTitle(data.title);
     if (data.description) setDescription(data.description);
     if (data.url) setUrl(data.url);
     if (data.tags && Array.isArray(data.tags)) {
-      setTags(data.tags.map((tag: string) => ({ id: crypto.randomUUID(), text: tag })));
+      setTags(
+        data.tags.map((tag: string) => ({ id: crypto.randomUUID(), text: tag }))
+      );
     }
   };
 
@@ -150,7 +146,13 @@ const AddTweetForm = () => {
             rows={3}
           />
         </div>
-        <InputTags id="tags" label="Tags" name="tags" tags={tags} setTags={setTags} />
+        <InputTags
+          id="tags"
+          label="Tags"
+          name="tags"
+          tags={tags}
+          setTags={setTags}
+        />
 
         {state.error && (
           <span className="text-red-500 text-sm">{state.message}</span>
@@ -167,6 +169,24 @@ export function AddTweetModal() {
   const [open, setOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
+  const [state, action, pending] = useActionState(createPage, {
+    error: false,
+    message: "",
+    open: false,
+    data: {
+      url: "",
+      title: "",
+      description: "",
+      tags: [],
+    },
+  });
+
+  useEffect(() => {
+    if (state.message === "Page created") {
+      setOpen(false);
+    }
+  }, [state]);
+
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
@@ -177,11 +197,22 @@ export function AddTweetModal() {
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-y-auto bg-white border-stone-200e">
-          <DialogHeader>
-            <DialogTitle>{WORDING_HEADER.title}</DialogTitle>
-            <DialogDescription>{WORDING_HEADER.description}</DialogDescription>
-          </DialogHeader>
-          <AddTweetForm />
+          {pending ? (
+            <div className="flex items-center justify-center h-full gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Ajout en cours...
+            </div>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>{WORDING_HEADER.title}</DialogTitle>
+                <DialogDescription>
+                  {WORDING_HEADER.description}
+                </DialogDescription>
+              </DialogHeader>
+              <AddTweetForm state={state} action={action} pending={pending} />
+            </>
+          )}
         </DialogContent>
       </Dialog>
     );
@@ -196,11 +227,22 @@ export function AddTweetModal() {
         </Button>
       </DrawerTrigger>
       <DrawerContent className="bg-white">
-        <DrawerHeader className="text-left">
-          <DrawerTitle>{WORDING_HEADER.title}</DrawerTitle>
-          <DrawerDescription>{WORDING_HEADER.description}</DrawerDescription>
-        </DrawerHeader>
-        <AddTweetForm />
+        {pending ? (
+          <div className="flex items-center justify-center h-full gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Ajout en cours...
+          </div>
+        ) : (
+          <>
+            <DrawerHeader className="text-left">
+              <DrawerTitle>{WORDING_HEADER.title}</DrawerTitle>
+              <DrawerDescription>
+                {WORDING_HEADER.description}
+              </DrawerDescription>
+            </DrawerHeader>
+            <AddTweetForm state={state} action={action} pending={pending} />
+          </>
+        )}
       </DrawerContent>
     </Drawer>
   );

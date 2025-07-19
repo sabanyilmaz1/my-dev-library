@@ -52,7 +52,6 @@ const AddPageForm = ({
       body: JSON.stringify({ url }),
     });
     const data = await response.json();
-    console.log(data);
 
     if (data.title) setTitle(data.title);
     if (data.description) setDescription(data.description);
@@ -62,15 +61,6 @@ const AddPageForm = ({
       );
     }
   };
-
-  if (pending) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        Ajout en cours...
-      </div>
-    );
-  }
 
   return (
     <>
@@ -183,8 +173,10 @@ export function AddPageModal() {
   });
 
   useEffect(() => {
-    setOpen(state.open);
-  }, [state.open]);
+    if (state.message === "Page created") {
+      setOpen(false);
+    }
+  }, [state]);
 
   if (isDesktop) {
     return (
@@ -196,11 +188,22 @@ export function AddPageModal() {
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md w-[95vw] max-h-[90vh] overflow-y-auto bg-white border-stone-200e">
-          <DialogHeader>
-            <DialogTitle>{WORDING_HEADER.title}</DialogTitle>
-            <DialogDescription>{WORDING_HEADER.description}</DialogDescription>
-          </DialogHeader>
-          <AddPageForm state={state} action={action} pending={pending} />
+          {pending ? (
+            <div className="flex items-center justify-center h-full">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Ajout en cours...
+            </div>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>{WORDING_HEADER.title}</DialogTitle>
+                <DialogDescription>
+                  {WORDING_HEADER.description}
+                </DialogDescription>
+              </DialogHeader>
+              <AddPageForm state={state} action={action} pending={pending} />
+            </>
+          )}
         </DialogContent>
       </Dialog>
     );
@@ -215,11 +218,22 @@ export function AddPageModal() {
         </Button>
       </DrawerTrigger>
       <DrawerContent className="bg-white">
-        <DrawerHeader className="text-left">
-          <DrawerTitle>{WORDING_HEADER.title}</DrawerTitle>
-          <DrawerDescription>{WORDING_HEADER.description}</DrawerDescription>
-        </DrawerHeader>
-        <AddPageForm state={state} action={action} pending={pending} />
+        {pending ? (
+          <div className="flex items-center justify-center h-full gap-2">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Ajout en cours...
+          </div>
+        ) : (
+          <>
+            <DrawerHeader className="text-left">
+              <DrawerTitle>{WORDING_HEADER.title}</DrawerTitle>
+              <DrawerDescription>
+                {WORDING_HEADER.description}
+              </DrawerDescription>
+            </DrawerHeader>
+            <AddPageForm state={state} action={action} pending={pending} />
+          </>
+        )}
       </DrawerContent>
     </Drawer>
   );
