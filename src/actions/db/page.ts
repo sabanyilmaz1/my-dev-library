@@ -12,9 +12,11 @@ import { revalidatePath, unstable_cache, revalidateTag } from "next/cache";
 const getCachedPagesByUserId = (userId: string) => {
   return unstable_cache(
     async (): Promise<Page[]> => {
+      const dbStartTime = performance.now();
       console.log(
         `🔍 [CACHE MISS] Requête DB pour l'utilisateur: ${userId} - ${new Date().toISOString()}`
       );
+
       const pages = await prisma.page.findMany({
         where: {
           user: {
@@ -22,9 +24,13 @@ const getCachedPagesByUserId = (userId: string) => {
           },
         },
       });
+
+      const dbEndTime = performance.now();
+      const dbDuration = (dbEndTime - dbStartTime).toFixed(2);
       console.log(
-        `📊 [DB QUERY] ${pages.length} pages récupérées pour l'utilisateur: ${userId}`
+        `📊 [DB QUERY] ${pages.length} pages récupérées pour l'utilisateur: ${userId} | ⏱️ Temps DB: ${dbDuration}ms`
       );
+
       return pages as Page[];
     },
     [`user-pages-${userId}`], // clé de cache unique par utilisateur
@@ -36,16 +42,22 @@ const getCachedPagesByUserId = (userId: string) => {
 
 export const getPagesByUserId = async () => {
   return withAuth(async (user) => {
+    const functionStartTime = performance.now();
     console.log(
       `⚡ [FUNCTION CALL] getPagesByUserId appelé pour l'utilisateur: ${
         user.id
       } - ${new Date().toISOString()}`
     );
+
     const cachedFn = getCachedPagesByUserId(user.id);
     const result = await cachedFn();
+
+    const functionEndTime = performance.now();
+    const totalDuration = (functionEndTime - functionStartTime).toFixed(2);
     console.log(
-      `✅ [CACHE HIT] ${result.length} pages retournées depuis le cache pour l'utilisateur: ${user.id}`
+      `✅ [RESPONSE] ${result.length} pages retournées pour l'utilisateur: ${user.id} | ⏱️ Temps total: ${totalDuration}ms`
     );
+
     return result;
   });
 };
@@ -184,6 +196,7 @@ export const createPage = async (
         }
 
         // Invalider le cache des pages pour cet utilisateur
+        const invalidationStartTime = performance.now();
         console.log(
           `🗑️ [CACHE INVALIDATION] Cache invalidé pour l'utilisateur: ${
             user.id
@@ -191,6 +204,14 @@ export const createPage = async (
         );
         revalidateTag(`user-pages-${user.id}`);
         revalidatePath("/home");
+
+        const invalidationEndTime = performance.now();
+        const invalidationDuration = (
+          invalidationEndTime - invalidationStartTime
+        ).toFixed(2);
+        console.log(
+          `🗑️ [CACHE CLEARED] Cache invalidation terminée | ⏱️ Temps: ${invalidationDuration}ms`
+        );
 
         return {
           error: false,
