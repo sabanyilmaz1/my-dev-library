@@ -9,8 +9,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import React, { useState } from "react";
 import { AddPageModal } from "./add-page-modal";
 import { AddTweetModal } from "./add-tweet-modal";
@@ -51,34 +49,10 @@ export const HeaderPage = ({ tags }: { tags: Tag[] }) => {
             orientation="vertical"
             className="h-6 bg-stone-300 hidden md:block"
           />
-
-          {/* Desktop Search */}
-          <div className="relative hidden md:block">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-            <Input
-              placeholder="Search websites, tags, or descriptions..."
-              //   value={searchQuery}
-              //   onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-80 pl-10 border-stone-200 bg-stone-50/50 focus:bg-white transition-colors duration-200"
-            />
-          </div>
         </div>
         <div className="flex items-center space-x-2">
           <AddPageModal />
           <AddTweetModal />
-        </div>
-      </div>
-
-      {/* Mobile Search */}
-      <div className="px-4 pb-4 md:hidden">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-          <Input
-            placeholder="Search websites..."
-            // value={searchQuery}
-            // onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 border-stone-200 bg-stone-50/50 focus:bg-white transition-colors duration-200"
-          />
         </div>
       </div>
     </header>
