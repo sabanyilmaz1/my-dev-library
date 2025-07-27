@@ -34,13 +34,6 @@ const getCachedPagesByUserId = (userId: string) => {
 
 export const getPagesByUserId = async (selectedTags?: string[]) => {
   return withAuth(async (user) => {
-    const functionStartTime = performance.now();
-    console.log(
-      `⚡ [FUNCTION CALL] getPagesByUserId appelé pour l'utilisateur: ${
-        user.id
-      } - ${new Date().toISOString()}`
-    );
-
     const cachedFn = getCachedPagesByUserId(user.id);
     const result = await cachedFn();
 
@@ -57,12 +50,6 @@ export const getPagesByUserId = async (selectedTags?: string[]) => {
         pageTagLabels.includes(selectedTag)
       );
     });
-
-    const functionEndTime = performance.now();
-    const totalDuration = (functionEndTime - functionStartTime).toFixed(2);
-    console.log(
-      `✅ [RESPONSE] ${result.length} pages retournées pour l'utilisateur: ${user.id} | ⏱️ Temps total: ${totalDuration}ms`
-    );
 
     return filteredPages;
   });
@@ -152,8 +139,6 @@ export const createPage = async (
           tags: formData.tags,
           summary: formData.summary,
         });
-
-        console.log(parsed);
 
         if (!parsed.success) {
           const firstError = parsed.error.errors[0];

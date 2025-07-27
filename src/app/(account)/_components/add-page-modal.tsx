@@ -61,7 +61,6 @@ const AddPageForm = ({
       body: JSON.stringify({ url }),
     });
     const data = await response.json();
-    console.log(data);
     setDataForm({
       title: data.title,
       description: data.description,
