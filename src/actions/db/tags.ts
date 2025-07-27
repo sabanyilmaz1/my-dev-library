@@ -20,6 +20,9 @@ export const getTagsByUserId = async () => {
     where: {
       userId: user.id,
     },
+    orderBy: {
+      numbers_pages: "desc",
+    },
   });
 
   return tags as Tag[];

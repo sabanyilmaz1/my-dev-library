@@ -8,6 +8,7 @@ interface Tag {
   id: string;
   label: string;
   value: string;
+  numbers_pages: number;
 }
 
 interface FiltersSidebarClientProps {
@@ -89,7 +90,12 @@ export const FiltersSidebarClient = ({ tags }: FiltersSidebarClientProps) => {
                 <span className="text-sm font-medium">{tag.label}</span>
                 {isSelected && (
                   <span className="text-xs bg-primary-foreground/20 text-primary-foreground px-2 rounded-full">
-                    ✓
+                    {tag.numbers_pages}
+                  </span>
+                )}
+                {!isSelected && (
+                  <span className="text-xs bg-stone-100 text-stone-500 px-2 rounded-full">
+                    {tag.numbers_pages}
                   </span>
                 )}
               </button>

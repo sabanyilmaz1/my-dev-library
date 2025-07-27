@@ -47,12 +47,10 @@ const AddPageForm = ({
     url: string;
     title: string;
     description: string;
-    summary: string;
   }>({
     url: "",
     title: "",
     description: "",
-    summary: "",
   });
 
   const generatePage = async (url: string) => {
@@ -64,7 +62,6 @@ const AddPageForm = ({
     setDataForm({
       title: data.title,
       description: data.description,
-      summary: data.summary,
       url: url,
     });
     if (data.tags && Array.isArray(data.tags)) {
@@ -127,12 +124,7 @@ const AddPageForm = ({
             className=""
           />
         </div>
-        {/* hidden summary */}
-        <input
-          type="hidden"
-          name="summary"
-          value={dataForm.summary || state.data.summary}
-        />
+
         <div className="space-y-2">
           <Label htmlFor="description" className="text-sm font-medium">
             Description
@@ -180,7 +172,6 @@ export function AddPageModal() {
       url: "",
       title: "",
       description: "",
-      summary: "",
       tags: [],
     },
   });

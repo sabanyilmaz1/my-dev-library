@@ -81,7 +81,6 @@ const createPageSchema = z.object({
     )
     .min(1, "At least one tag is required")
     .max(10, "Maximum 10 tags allowed"),
-  summary: z.string().min(1, "Summary is required"),
 });
 
 export type CreatePageState = {
@@ -93,7 +92,6 @@ export type CreatePageState = {
     title: string;
     description: string;
     tags: string[];
-    summary: string;
   };
 };
 
@@ -101,7 +99,6 @@ const createPageFormSchema = z.object({
   url: z.string(),
   title: z.string(),
   description: z.string(),
-  summary: z.string(),
   tags: z.string().transform((str) => {
     try {
       return JSON.parse(str);
@@ -122,7 +119,6 @@ export const createPage = async (
       title: formData.get("title") as string,
       description: formData.get("description") as string,
       tags: JSON.parse((formData.get("tags") as string) || "[]"),
-      summary: formData.get("summary") as string,
     },
   };
 
@@ -136,7 +132,6 @@ export const createPage = async (
           title: formData.title,
           description: formData.description,
           tags: formData.tags,
-          summary: formData.summary,
         });
 
         if (!parsed.success) {
@@ -213,7 +208,6 @@ export const createPage = async (
             title: "",
             description: "",
             tags: [],
-            summary: "",
           },
         };
       }
