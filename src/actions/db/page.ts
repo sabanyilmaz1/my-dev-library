@@ -77,7 +77,6 @@ const createPageSchema = z.object({
         .string()
         .min(1, "Tag cannot be empty")
         .max(50, "Tag must be less than 50 characters")
-        // .regex(/^[a-zA-Z0-9\s\-_]+$/, "Tag contains invalid characters")
         .trim()
     )
     .min(1, "At least one tag is required")
