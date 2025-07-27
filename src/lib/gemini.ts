@@ -1,21 +1,15 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
-
-const config = {
-  responseMimeType: "application/json",
-};
+export const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_API_KEY });
 
 export async function generateContent(contents: string) {
   const response = await ai.models.generateContentStream({
     model: "gemini-2.0-flash",
-    contents: [
-      {
-        role: "user",
-        parts: [{ text: contents }],
-      },
-    ],
-    config,
+    contents: [contents],
+    config: {
+      responseMimeType: "application/json",
+      tools: [{ urlContext: {} }],
+    },
   });
   let result = "";
   for await (const chunk of response) {

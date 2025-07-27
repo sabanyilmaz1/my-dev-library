@@ -41,10 +41,19 @@ const AddPageForm = ({
   action: (payload: FormData) => void;
   pending: boolean;
 }) => {
-  const [url, setUrl] = useState("");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const [tags, setTags] = useState<Tag[]>([]);
+
+  const [dataForm, setDataForm] = useState<{
+    url: string;
+    title: string;
+    description: string;
+    summary: string;
+  }>({
+    url: "",
+    title: "",
+    description: "",
+    summary: "",
+  });
 
   const generatePage = async (url: string) => {
     const response = await fetch("/api/generate-content", {
@@ -52,9 +61,13 @@ const AddPageForm = ({
       body: JSON.stringify({ url }),
     });
     const data = await response.json();
-
-    if (data.title) setTitle(data.title);
-    if (data.description) setDescription(data.description);
+    console.log(data);
+    setDataForm({
+      title: data.title,
+      description: data.description,
+      summary: data.summary,
+      url: url,
+    });
     if (data.tags && Array.isArray(data.tags)) {
       setTags(
         data.tags.map((tag: string) => ({ id: crypto.randomUUID(), text: tag }))
@@ -77,8 +90,10 @@ const AddPageForm = ({
               id="url"
               name="url"
               type="text"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              value={dataForm.url}
+              onChange={(e) =>
+                setDataForm({ ...dataForm, url: e.target.value })
+              }
               placeholder="https://example.com"
               className="flex-1"
               required
@@ -88,7 +103,7 @@ const AddPageForm = ({
               variant="outline"
               size="sm"
               className="px-3 whitespace-nowrap bg-transparent w-full sm:w-auto"
-              onClick={() => generatePage(url)}
+              onClick={() => generatePage(dataForm.url)}
             >
               ✨ AI Generate
             </Button>
@@ -105,13 +120,20 @@ const AddPageForm = ({
           <Input
             id="title"
             name="title"
-            value={title || state.data.title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={dataForm.title || state.data.title}
+            onChange={(e) =>
+              setDataForm({ ...dataForm, title: e.target.value })
+            }
             placeholder="Enter a title"
             className=""
           />
         </div>
-
+        {/* hidden summary */}
+        <input
+          type="hidden"
+          name="summary"
+          value={dataForm.summary || state.data.summary}
+        />
         <div className="space-y-2">
           <Label htmlFor="description" className="text-sm font-medium">
             Description
@@ -119,8 +141,10 @@ const AddPageForm = ({
           <Textarea
             id="description"
             name="description"
-            value={description || state.data.description}
-            onChange={(e) => setDescription(e.target.value)}
+            value={dataForm.description || state.data.description}
+            onChange={(e) =>
+              setDataForm({ ...dataForm, description: e.target.value })
+            }
             placeholder="Add a description"
             className="resize-none"
             rows={3}
@@ -137,17 +161,6 @@ const AddPageForm = ({
         {state.error && (
           <span className="text-red-500 text-sm">{state.message}</span>
         )}
-        {/* {isDesktop ? (
-          <DialogClose asChild>
-            <Button type="submit" disabled={pending}>
-              {pending ? "Ajout en cours..." : "Ajouter"}
-            </Button>
-          </DialogClose>
-        ) : (
-          <Button type="submit" disabled={pending}>
-            {pending ? "Ajout en cours..." : "Ajouter"}
-          </Button>
-        )} */}
         <Button type="submit" disabled={pending}>
           {pending ? "Ajout en cours..." : "Ajouter"}
         </Button>
@@ -168,6 +181,7 @@ export function AddPageModal() {
       url: "",
       title: "",
       description: "",
+      summary: "",
       tags: [],
     },
   });

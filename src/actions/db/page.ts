@@ -3,20 +3,15 @@
 
 import { withAuth, validatedActionWithUser } from "@/lib/auth/middleware";
 import prisma from "@/lib/prisma";
-import { Page } from "@prisma/client";
 import { z } from "zod";
 import { generateScreenshot } from "@/lib/screenshot";
 import { revalidatePath, unstable_cache, revalidateTag } from "next/cache";
+import { cleanUrl } from "@/utils/url-cleaner";
+import type { Page } from "@prisma/client";
 
-// Fonction privée pour récupérer les pages avec cache
 const getCachedPagesByUserId = (userId: string) => {
   return unstable_cache(
     async (): Promise<Page[]> => {
-      const dbStartTime = performance.now();
-      console.log(
-        `🔍 [CACHE MISS] Requête DB pour l'utilisateur: ${userId} - ${new Date().toISOString()}`
-      );
-
       const pages = await prisma.page.findMany({
         where: {
           user: {
@@ -27,12 +22,6 @@ const getCachedPagesByUserId = (userId: string) => {
           createdAt: "desc",
         },
       });
-
-      const dbEndTime = performance.now();
-      const dbDuration = (dbEndTime - dbStartTime).toFixed(2);
-      console.log(
-        `📊 [DB QUERY] ${pages.length} pages récupérées pour l'utilisateur: ${userId} | ⏱️ Temps DB: ${dbDuration}ms`
-      );
 
       return pages as Page[];
     },
@@ -101,11 +90,12 @@ const createPageSchema = z.object({
         .string()
         .min(1, "Tag cannot be empty")
         .max(50, "Tag must be less than 50 characters")
-        .regex(/^[a-zA-Z0-9\s\-_]+$/, "Tag contains invalid characters")
+        // .regex(/^[a-zA-Z0-9\s\-_]+$/, "Tag contains invalid characters")
         .trim()
     )
     .min(1, "At least one tag is required")
     .max(10, "Maximum 10 tags allowed"),
+  summary: z.string().min(1, "Summary is required"),
 });
 
 export type CreatePageState = {
@@ -117,6 +107,7 @@ export type CreatePageState = {
     title: string;
     description: string;
     tags: string[];
+    summary: string;
   };
 };
 
@@ -124,6 +115,7 @@ const createPageFormSchema = z.object({
   url: z.string(),
   title: z.string(),
   description: z.string(),
+  summary: z.string(),
   tags: z.string().transform((str) => {
     try {
       return JSON.parse(str);
@@ -144,6 +136,7 @@ export const createPage = async (
       title: formData.get("title") as string,
       description: formData.get("description") as string,
       tags: JSON.parse((formData.get("tags") as string) || "[]"),
+      summary: formData.get("summary") as string,
     },
   };
 
@@ -151,12 +144,16 @@ export const createPage = async (
     const result = await validatedActionWithUser(
       createPageFormSchema,
       async (formData, _, user) => {
+        const cleanedUrl = cleanUrl(formData.url);
         const parsed = createPageSchema.safeParse({
-          url: formData.url,
+          url: cleanedUrl,
           title: formData.title,
           description: formData.description,
           tags: formData.tags,
+          summary: formData.summary,
         });
+
+        console.log(parsed);
 
         if (!parsed.success) {
           const firstError = parsed.error.errors[0];
@@ -167,6 +164,7 @@ export const createPage = async (
             data: newState.data,
           };
         }
+
         const screenshotResult = await generateScreenshot({
           url: parsed.data.url,
           userId: user.id,
@@ -178,58 +176,50 @@ export const createPage = async (
         if (!screenshotResult.success) {
           console.warn("Screenshot generation failed:", screenshotResult.error);
         }
-        await prisma.page.create({
-          data: {
-            url: parsed.data.url,
-            title: parsed.data.title,
-            description: parsed.data.description,
-            thumbnail: thumbnailUrl || "",
-            tags: parsed.data.tags.map((tag) => ({
-              id: tag,
-              label: tag,
-              value: tag.toLowerCase(),
-              userId: user.id,
-            })),
-            user: {
-              connect: {
-                id: user.id,
-              },
-            },
-          },
-        });
-
-        const tags = parsed.data.tags.map((tag) => ({
+        const tagsArray = parsed.data.tags.map((tag) => ({
           id: tag,
           label: tag,
           value: tag.toLowerCase(),
           userId: user.id,
         }));
 
-        if (tags && tags.length > 0) {
-          await prisma.tag.createMany({
-            data: tags,
-            skipDuplicates: true,
-          });
-        }
+        await prisma.page.create({
+          data: {
+            url: parsed.data.url,
+            title: parsed.data.title,
+            description: parsed.data.description,
+            thumbnail: thumbnailUrl,
+            userId: user.id,
+            tags: tagsArray,
+          },
+        });
 
-        // Invalider le cache des pages pour cet utilisateur
-        const invalidationStartTime = performance.now();
-        console.log(
-          `🗑️ [CACHE INVALIDATION] Cache invalidé pour l'utilisateur: ${
-            user.id
-          } - ${new Date().toISOString()}`
-        );
+        if (parsed.data.tags && parsed.data.tags.length > 0) {
+          for (const tagLabel of parsed.data.tags) {
+            await prisma.tag.upsert({
+              where: {
+                label_value: {
+                  label: tagLabel,
+                  value: tagLabel.toLowerCase(),
+                },
+              },
+              update: {
+                numbers_pages: {
+                  increment: 1,
+                },
+              },
+              create: {
+                id: tagLabel,
+                label: tagLabel,
+                value: tagLabel.toLowerCase(),
+                userId: user.id,
+                numbers_pages: 1,
+              },
+            });
+          }
+        }
         revalidateTag(`user-pages-${user.id}`);
         revalidatePath("/home");
-
-        const invalidationEndTime = performance.now();
-        const invalidationDuration = (
-          invalidationEndTime - invalidationStartTime
-        ).toFixed(2);
-        console.log(
-          `🗑️ [CACHE CLEARED] Cache invalidation terminée | ⏱️ Temps: ${invalidationDuration}ms`
-        );
-
         return {
           error: false,
           message: "Page created",
@@ -239,6 +229,7 @@ export const createPage = async (
             title: "",
             description: "",
             tags: [],
+            summary: "",
           },
         };
       }
