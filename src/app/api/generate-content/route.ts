@@ -28,7 +28,6 @@ export async function POST(request: NextRequest) {
     const finalPrompt = `${prompt}\n\nAnalyze this URL: ${url}`;
 
     const result = await generateContent(finalPrompt);
-
     return NextResponse.json(result);
   } catch (error) {
     console.error("Error generating content:", error);

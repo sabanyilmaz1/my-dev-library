@@ -97,8 +97,6 @@ Et que la page est un tutoriel sur *l'optimisation des requêtes SQL pour les ap
   "tags": ["nodejs", "sql", "performance", "backend"]
 }
 \`\`\`
-*(Note : "nodejs" a été considéré à partir des balises existantes, mais "sql", "performance" et "backend" ont été créés comme étant plus précis pour le sujet principal, bien que "database" soit vaguement présent dans <already_tags>, car "sql" et "performance" sont plus directs et spécifiques.)*
-</examples>
 `;
 
 export const returnPromptWithAlreadyTags = (tags: string[]) => {
